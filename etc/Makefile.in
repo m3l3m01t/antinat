@@ -20,4 +20,5 @@ distclean: clean
 install: all
 	$(INSTALL) -d "$(sysconfdir)"
 	$(INSTALL) -d "$(LOGDIR)"
-	$(INSTALL) -m 0600 antinat.xml "$(sysconfdir)"
+	$(INSTALL) -m 0644 antinat.xml "$(sysconfdir)"
+	$(INSTALL) -m 0755 antinat.init /etc/init.d/antinat

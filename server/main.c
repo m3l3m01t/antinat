@@ -36,9 +36,11 @@ os_mutex_t writerpipe_lock;
 
 SOCKET srv = INVALID_SOCKET;
 config_t *conf = NULL;
+//char *config_filename = sysconfdir "/antinat.xml";
 char *config_filename = NULL;
+const char *pid_filename = "/var/run/antinat.pid";
 #ifndef _WIN32_
-BOOL runAsDaemon = FALSE;
+BOOL runAsDaemon = TRUE;
 #endif
 #ifdef _WIN32_
 BOOL runAsApplication = FALSE;
@@ -143,8 +145,19 @@ void
 daemonize ()
 {
 	int fh;
-	if (fork () != 0)
+	pid_t pid;
+	if ((pid = fork ()) != 0) {
+		if (pid != -1) {
+			FILE *fp;
+
+			unlink(pid_filename);
+			if ((fp = fopen(pid_filename, "w")) != NULL) {
+				fprintf(fp, "%ld", pid);
+				fclose(fp);
+			}
+		}
 		exit (EXIT_SUCCESS);
+	}
 	fh = open ("/dev/null", O_RDWR, 0666);
 	close (1);
 	close (2);
@@ -284,6 +297,7 @@ displayHelp ()
 			 "Usage: antinat [-h] [-i|-r|-a] [-cConfigFile] [-x]\n"
 			 "-h - This help screen\n"
 			 "-c - Specify the location of the configuration file\n"
+			 "-p - Specify the location of the pid file\n"
 			 "WIN32 ONLY:\n"
 			 "-a - Run as application (rather than service)\n"
 			 "-i - Install as service\n"
@@ -300,17 +314,22 @@ displayHelp ()
 #ifdef _WIN32_
 VOID InstallService (LPCTSTR);
 VOID RemoveService (LPCTSTR);
-#endif
 
 
 void
 process_args (DSParams * param)
 {
+	char *value;
+
 	if (ds_hash_getNumericValue_n (&param->hsh, 'h')) {
 		displayHelp ();
 		exit (EXIT_SUCCESS);
 	}
-	if (ds_hash_getPtrValue_n (&param->hsh, 'c')) {
+	if ((value = ds_hash_getPtrValue_n (&param->hsh, 'p'))) {
+		pid_filename = strdup(value);
+	}
+
+	if ((value = ds_hash_getPtrValue_n (&param->hsh, 'c'))) {
 		config_filename =
 			(char *)
 			malloc (strlen ((char *) ds_hash_getPtrValue_n (&param->hsh, 'c'))
@@ -340,6 +359,32 @@ process_args (DSParams * param)
 	}
 #endif
 }
+#else
+void	getopt_process_args(int argc, char *argv[])
+{
+	int opt;
+	while ((opt = getopt(argc, argv, "xc:p:")) != -1) {
+		switch(opt) {
+			case 'x':
+				runAsDaemon = FALSE;
+				break;
+			case 'c':
+				config_filename = strdup(optarg);
+				break;
+			case 'p':
+				pid_filename = strdup(optarg);
+				break;
+			case 'h':
+				displayHelp ();
+				exit (EXIT_SUCCESS);
+				break;
+			default:
+				displayHelp ();
+				exit (EXIT_FAILURE);
+		}
+	}
+}
+#endif
 
 /*
 main() - you've seen that before.
@@ -348,13 +393,7 @@ main() - you've seen that before.
 int
 main (int argc, char *argv[])
 {
-	DSParams param;
-	ds_param_init (&param);
-	ds_param_setFlagSwitch (&param, 'x');
-	ds_param_setStringSwitch (&param, 'c');
-	ds_param_process_argv (&param, argc, argv);
-	process_args (&param);
-	ds_param_close (&param);
+	getopt_process_args(argc, argv);
 
 	return realapp ();
 }

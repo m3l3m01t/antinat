@@ -11,6 +11,7 @@
 #include <stdio.h>
 #endif
 
+#ifndef LINUX
 static void
 ds_le_init (DSListElement * le)
 {
@@ -570,3 +571,4 @@ ds_param_process_str (DSParams * para, char *arg)
 	}
 	return TRUE;
 }
+#endif

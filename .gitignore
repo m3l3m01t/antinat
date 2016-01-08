@@ -1,0 +1,7 @@
+*.o
+*.lo
+*.so
+.libs
+tags
+config.log
+config.status
