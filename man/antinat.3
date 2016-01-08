@@ -1,0 +1,116 @@
+.TH ANTINAT 3 2005-01-05 "Antinat" "Antinat Programmer's Manual"
+.SH NAME
+.PP
+antinat - Use proxy-aware networking
+.SH DESCRIPTION
+.PP
+Antinat provides a library replacement for the BSD-socket library.  This
+new API has the advantages of being simpler, but more importantly,
+proxy-aware.  Many other products implement BSD-compatible libraries that
+are capable of using proxies; antinat does not attempt to remain source
+compatible with BSD sockets.  This means that applications can support
+proxy features that would not be available in a transparent library;
+server-side name resolution and authentication are two classic examples.
+.PP
+In order to use this library in your applications, remember to
+.B #include <antinat.h>
+in your application source files.  The interfaces are designed to be
+compatible with many languages, however, non-C/C++ bindings have not
+yet been produced.  When linking your application, link against
+antinat library on your platform.  Typically, functions follow
+a generalised order of use:
+.PP
+1. Create a new proxy-aware socket handle with
+.BR an_new_connection (3).
+.PP
+2. Change socket characteristics to be those desired, using 
+.BR an_clear_authschemes (3),
+.BR an_set_authscheme (3),
+.BR an_set_credentials (3),
+.BR an_set_proxy (3),
+.BR an_set_proxy_url (3)
+and/or
+.BR an_unset_proxy (3).
+.PP
+3. Engage with the remote host in the desired way, using
+.BR an_bind_tohostname (3),
+.BR an_bind_tosockaddr (3),
+.BR an_connect_tohostname (3),
+or
+.BR an_connect_tosockaddr (3).
+.PP
+4. If the operation was a bind, follow up with
+.BR an_getsockname (3),
+.BR an_listen (3)
+and
+.BR an_accept (3).
+.PP
+5. Having been connected, communicate with the remote host using
+.BR an_recv (3)
+and/or
+.BR an_send (3).
+If there are multiple connections in a single thread, determine which of
+these need attention with a standard select call; use
+.BR AN_FD_CLR (3),
+.BR AN_FD_ISSET (3),
+and/or
+.BR AN_FD_SET (3)
+to manipulate the lists which select requires.
+.PP
+6. When the connection is no longer required, it can be terminated using
+.BR an_close (3).
+At this point, the connection handle can be re-used, by proceeding from
+step 2. onwards; all settings done previously in step 2. will be preserved.
+.PP
+7. When there is no further use for the connection handle, destroy it using
+.BR an_destroy (3).
+.PP
+Most of the Antinat functions give Antinat-style error returns.  These can
+be converted to human text using the
+.BR an_geterror (3)
+function.  Manual pages often provide more detailed information about what
+may have caused each error in the context in which it was used.
+.PP
+If no proxy information is set by the application using these APIs, the
+default proxy information can be found in the
+.IR AN_PROXY ,
+.IR AN_USER and
+.IR AN_PASS
+environment variables.
+.PP
+Although applications should avoid performing name-resolution, and leave
+this to the proxy wherever possible, where this is unavoidable applications
+should call
+.BR an_gethostbyname (3).
+This function has the advantage of being threadsafe, even where no
+underlying threadsafe implementation exists.  Take great care, however, if
+your platform does not support a threadsafe gethostbyname; all calls to
+gethostbyname in your application, including dependent libraries, must
+use an_gethostbyname or potential race conditions will exist.
+.SH "SEE ALSO"
+.PP
+.BR an_accept (3),
+.BR an_bind_tohostname (3),
+.BR an_bind_tosockaddr (3),
+.BR an_clear_authschemes (3),
+.BR an_close (3),
+.BR an_connect_tohostname (3),
+.BR an_connect_tosockaddr (3),
+.BR an_destroy (3),
+.BR an_geterror (3),
+.BR an_gethostbyname (3),
+.BR an_getpeername (3),
+.BR an_getsockname (3),
+.BR an_listen (3),
+.BR an_new_connection (3),
+.BR an_recv (3),
+.BR an_send (3),
+.BR an_set_authscheme (3),
+.BR an_set_blocking (3),
+.BR an_set_credentials (3),
+.BR an_set_proxy (3),
+.BR an_set_proxy_url (3),
+.BR an_unset_proxy (3)
+.SH AUTHOR
+.PP
+Malcolm Smith <malxau@users.sourceforge.net>

@@ -1,0 +1,99 @@
+
+<HTML><HEAD><TITLE>Manpage of AN_CLEAR_AUTHSCHEMES</TITLE>
+</HEAD><BODY>
+<H1>AN_CLEAR_AUTHSCHEMES</H1>
+Section: Antinat Programmer's Manual (3)<BR>Updated: 2005-01-02<BR><A HREF="#index">Index</A>
+<A HREF="antinat.3.html">Return to Main Contents</A><HR>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+<P>
+
+an_clear_authschemes - reset all supported authentication schemes on connection
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<P>
+
+<B>#include &lt;antinat.h&gt;</B>
+
+<P>
+<B>int an_clear_authschemes(ANCONN </B><I>s</I><B>);</B>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+The
+<B><A HREF="an_clear_authschemes.3.html">an_clear_authschemes</A></B>(3)
+
+function is used reset all supported authentication schemes on a connection.
+The default is to accept any supported authentication scheme when connecting
+to a proxy; using this function on a connection before connecting resets this
+to support no authentication schemes unless explicitly supported by calling
+the
+<B><A HREF="an_set_authscheme.3.html">an_set_authscheme</A></B>(3)
+
+function.
+<P>
+
+<I>s</I>
+
+is a socket previously created with
+<B><A HREF="an_new_connection.3.html">an_new_connection</A></B>(3),
+
+prior to connecting or binding.
+<A NAME="lbAE">&nbsp;</A>
+<H2>RETURN VALUE</H2>
+
+<P>
+
+This call returns
+<B>AN_ERROR_SUCCESS</B>
+
+to indicate successful completion.
+<A NAME="lbAF">&nbsp;</A>
+<H2>ERRORS</H2>
+
+<DL COMPACT>
+<DT><B>AN_ERROR_INVALIDARG</B>
+
+<DD>
+The supplied connection is not a valid connection.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<P>
+
+<B><A HREF="an_new_connection.3.html">an_new_connection</A></B>(3),
+
+<B><A HREF="an_set_authscheme.3.html">an_set_authscheme</A></B>(3),
+
+<B><A HREF="an_set_credentials.3.html">an_set_credentials</A></B>(3)
+
+<A NAME="lbAH">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<P>
+
+Malcolm Smith &lt;<A HREF="mailto:malxau@users.sourceforge.net">malxau@users.sourceforge.net</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">RETURN VALUE</A><DD>
+<DT><A HREF="#lbAF">ERRORS</A><DD>
+<DT><A HREF="#lbAG">SEE ALSO</A><DD>
+<DT><A HREF="#lbAH">AUTHOR</A><DD>
+</DL>
+<HR>
+Time: 14:19:43 GMT, January 09, 2005
+</BODY>
+</HTML>

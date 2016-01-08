@@ -1,0 +1,49 @@
+all: all-delayed
+
+!include <AutoWin.mak>
+WITH_FEEDBACK=0
+
+all-delayed: w32bcfgx.mak
+	@cd client
+	@echo Building all in client...
+	@$(BUILD)
+	@cd ..\expat
+	@echo Building all in expat...
+	@$(BUILD)
+	@cd ..\server
+	@echo Building all in server...
+	@$(BUILD)
+	@cd ..\tests
+	@echo Building all in tests...
+	@$(BUILD)
+	@cd ..
+
+clean: w32bcfgx.mak
+	@cd client
+	@echo Cleaning in client...
+	@$(BUILD) clean
+	@cd ..\expat
+	@echo Cleaning in expat...
+	@$(BUILD) clean
+	@cd ..\server
+	@echo Cleaning in server...
+	@$(BUILD) clean
+	@cd ..\tests
+	@echo Cleaning in tests...
+	@$(BUILD) clean
+	@cd ..
+	@erase w32bcfg.mak
+	@erase w32bcfgx.mak
+	@if exist antinat-win32-installer.exe erase antinat-win32-installer.exe
+
+w32bcfgx.mak: w32bcfg.mak
+	@echo WITH_FEEDBACK=$(WITH_FEEDBACK) >>w32bcfg.mak
+	@copy w32bcfg.mak w32bcfgx.mak
+
+distribution: antinat-win32-installer.exe
+
+antinat-win32-installer.exe: all antinat.nsi
+	@echo Making self-installer...
+	@makensis /V2 antinat.nsi
+	@if exist antinat-win32-installer.exe echo Distribution built successfully!
+

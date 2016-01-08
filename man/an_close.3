@@ -1,0 +1,53 @@
+.TH AN_CLOSE 3 2005-01-02 "Antinat" "Antinat Programmer's Manual"
+.SH NAME
+.PP
+an_close - close an open socket
+.SH SYNOPSIS
+.PP
+.B #include <antinat.h>
+.sp
+.BI "int an_close(ANCONN " s ");"
+.SH DESCRIPTION
+.PP
+The
+.BR an_close (3)
+function is used close a connection that had previously been created with
+.BR an_accept (3),
+.BR an_connect_tohostname (3)
+or
+.BR an_connect_tosockaddr (3).
+Closing the socket does not destroy the handle; it terminates the network
+connection but the handle remains open to make other connections with. To
+destroy the handle, use
+.BR an_destroy (3).
+.PP
+.I s
+is a socket previously created with
+.BR an_new_connection (3),
+and connected using
+.BR an_accept (3),
+.BR an_connect_tohostname (3)
+or
+.BR an_connect_tosockaddr (3).
+.SH RETURN VALUE
+.PP
+This call returns
+.B AN_ERROR_SUCCESS
+to indicate successful completion.
+.SH ERRORS
+.TP
+.B AN_ERROR_INVALIDARG
+The connection supplied is not a valid connection.
+.TP
+.B AN_ERROR_NOTSUPPORTED
+The proxy type or address type is not supported.
+.SH "SEE ALSO"
+.PP
+.BR an_accept (3),
+.BR an_connect_tohostname (3),
+.BR an_connect_tosockaddr (3),
+.BR an_destroy (3),
+.BR an_new_connection (3)
+.SH AUTHOR
+.PP
+Malcolm Smith <malxau@users.sourceforge.net>

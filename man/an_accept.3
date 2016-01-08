@@ -1,0 +1,84 @@
+.TH AN_ACCEPT 3 2005-01-06 "Antinat" "Antinat Programmer's Manual"
+.SH NAME
+.PP
+an_accept - accept a connection on a proxy-capable socket
+.SH SYNOPSIS
+.PP
+.B #include <antinat.h>
+.sp
+.BI "int an_accept(ANCONN " s ", struct sockaddr *" addr ", int " socklen ");"
+.SH DESCRIPTION
+.PP
+The
+.BR an_accept (3)
+function is used to accept an incoming connection on a socket that was created
+earlier and switched into listen mode using the
+.BR an_listen (3)
+call.  For proxy-based connections, only one incoming connection is allowed on
+any listening socket.  Accepting a connection will use the primary socket for
+communication and will not create any other socket.
+.PP
+.I s
+is a socket previously created with
+.BR an_new_connection (3),
+bound with the
+.BR an_bind_tohostname (3)
+or
+.BR an_bind_tosockaddr (3)
+calls, and placed into listen mode with
+.BR an_listen (3).
+.PP
+Similar to
+.BR accept ,
+addr is filled in with the address of the connecting entity and socklen
+contains the length of addr.  If addr is NULL then this data is not returned,
+but may be retrieved later with a call to
+.BR an_getpeername (3).
+.SH NOTES
+.PP
+Although there is planned support for non-blocking sockets in a future release,
+this call should be considered a blocking call.  A non-blocking socket will be
+silently (and temporarily) changed to a blocking one to process the
+connection.
+.SH RETURN VALUE
+.PP
+This call returns
+.B AN_ERROR_SUCCESS
+to indicate successful completion.
+.SH ERRORS
+.TP
+.B AN_ERROR_INVALIDARG
+The socket handle is invalid.
+.TP
+.B AN_ERROR_NETWORK
+Could not read information from the network; a network error occurred.
+.TP
+.B AN_ERROR_NOMEM
+There was not enough space to store the resulting socket information into
+the
+.I addr
+buffer.
+.TP
+.B AN_ERROR_NOTSUPPORTED
+This call cannot be made on the type of socket, or cannot return socket
+information for this type of connection.
+.TP
+.B AN_ERROR_ORDER
+This call must be called after a prior successful call to
+.BR an_bind_tosockaddr (3)
+or
+.BR an_bind_tohostname (3).
+.TP
+.B AN_ERROR_PROXY
+The proxy failed to successfully process the incoming connection.
+.SH "SEE ALSO"
+.PP
+.BR accept ,
+.BR an_bind_tohostname (3),
+.BR an_bind_tosockaddr (3),
+.BR an_getpeername (3),
+.BR an_listen (3),
+.BR an_new_connection (3)
+.SH AUTHOR
+.PP
+Malcolm Smith <malxau@users.sourceforge.net>

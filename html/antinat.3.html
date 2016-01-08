@@ -1,0 +1,208 @@
+
+<HTML><HEAD><TITLE>Manpage of ANTINAT</TITLE>
+</HEAD><BODY>
+<H1>ANTINAT</H1>
+Section: Antinat Programmer's Manual (3)<BR>Updated: 2005-01-05<BR><A HREF="#index">Index</A>
+<A HREF="antinat.3.html">Return to Main Contents</A><HR>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+<P>
+
+antinat - Use proxy-aware networking
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+Antinat provides a library replacement for the BSD-socket library.  This
+new API has the advantages of being simpler, but more importantly,
+proxy-aware.  Many other products implement BSD-compatible libraries that
+are capable of using proxies; antinat does not attempt to remain source
+compatible with BSD sockets.  This means that applications can support
+proxy features that would not be available in a transparent library;
+server-side name resolution and authentication are two classic examples.
+<P>
+
+In order to use this library in your applications, remember to
+<B>#include &lt;antinat.h&gt;</B>
+
+in your application source files.  The interfaces are designed to be
+compatible with many languages, however, non-C/C++ bindings have not
+yet been produced.  When linking your application, link against
+antinat library on your platform.  Typically, functions follow
+a generalised order of use:
+<P>
+
+1. Create a new proxy-aware socket handle with
+<B><A HREF="an_new_connection.3.html">an_new_connection</A></B>(3).
+
+<P>
+
+2. Change socket characteristics to be those desired, using 
+<B><A HREF="an_clear_authschemes.3.html">an_clear_authschemes</A></B>(3),
+
+<B><A HREF="an_set_authscheme.3.html">an_set_authscheme</A></B>(3),
+
+<B><A HREF="an_set_credentials.3.html">an_set_credentials</A></B>(3),
+
+<B><A HREF="an_set_proxy.3.html">an_set_proxy</A></B>(3),
+
+<B><A HREF="an_set_proxy_url.3.html">an_set_proxy_url</A></B>(3)
+
+and/or
+<B><A HREF="an_unset_proxy.3.html">an_unset_proxy</A></B>(3).
+
+<P>
+
+3. Engage with the remote host in the desired way, using
+<B><A HREF="an_bind_tohostname.3.html">an_bind_tohostname</A></B>(3),
+
+<B><A HREF="an_bind_tosockaddr.3.html">an_bind_tosockaddr</A></B>(3),
+
+<B><A HREF="an_connect_tohostname.3.html">an_connect_tohostname</A></B>(3),
+
+or
+<B><A HREF="an_connect_tosockaddr.3.html">an_connect_tosockaddr</A></B>(3).
+
+<P>
+
+4. If the operation was a bind, follow up with
+<B><A HREF="an_getsockname.3.html">an_getsockname</A></B>(3),
+
+<B><A HREF="an_listen.3.html">an_listen</A></B>(3)
+
+and
+<B><A HREF="an_accept.3.html">an_accept</A></B>(3).
+
+<P>
+
+5. Having been connected, communicate with the remote host using
+<B><A HREF="an_recv.3.html">an_recv</A></B>(3)
+
+and/or
+<B><A HREF="an_send.3.html">an_send</A></B>(3).
+
+If there are multiple connections in a single thread, determine which of
+these need attention with a standard select call; use
+<B><A HREF="AN_FD_CLR.3.html">AN_FD_CLR</A></B>(3),
+
+<B><A HREF="AN_FD_ISSET.3.html">AN_FD_ISSET</A></B>(3),
+
+and/or
+<B><A HREF="AN_FD_SET.3.html">AN_FD_SET</A></B>(3)
+
+to manipulate the lists which select requires.
+<P>
+
+6. When the connection is no longer required, it can be terminated using
+<B><A HREF="an_close.3.html">an_close</A></B>(3).
+
+At this point, the connection handle can be re-used, by proceeding from
+step 2. onwards; all settings done previously in step 2. will be preserved.
+<P>
+
+7. When there is no further use for the connection handle, destroy it using
+<B><A HREF="an_destroy.3.html">an_destroy</A></B>(3).
+
+<P>
+
+Most of the Antinat functions give Antinat-style error returns.  These can
+be converted to human text using the
+<B><A HREF="an_geterror.3.html">an_geterror</A></B>(3)
+
+function.  Manual pages often provide more detailed information about what
+may have caused each error in the context in which it was used.
+<P>
+
+If no proxy information is set by the application using these APIs, the
+default proxy information can be found in the
+<I>AN_PROXY</I>,
+
+<I>AN_USER</I>and
+
+<I>AN_PASS</I>
+
+environment variables.
+<P>
+
+Although applications should avoid performing name-resolution, and leave
+this to the proxy wherever possible, where this is unavoidable applications
+should call
+<B><A HREF="an_gethostbyname.3.html">an_gethostbyname</A></B>(3).
+
+This function has the advantage of being threadsafe, even where no
+underlying threadsafe implementation exists.  Take great care, however, if
+your platform does not support a threadsafe gethostbyname; all calls to
+gethostbyname in your application, including dependent libraries, must
+use an_gethostbyname or potential race conditions will exist.
+<A NAME="lbAD">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<P>
+
+<B><A HREF="an_accept.3.html">an_accept</A></B>(3),
+
+<B><A HREF="an_bind_tohostname.3.html">an_bind_tohostname</A></B>(3),
+
+<B><A HREF="an_bind_tosockaddr.3.html">an_bind_tosockaddr</A></B>(3),
+
+<B><A HREF="an_clear_authschemes.3.html">an_clear_authschemes</A></B>(3),
+
+<B><A HREF="an_close.3.html">an_close</A></B>(3),
+
+<B><A HREF="an_connect_tohostname.3.html">an_connect_tohostname</A></B>(3),
+
+<B><A HREF="an_connect_tosockaddr.3.html">an_connect_tosockaddr</A></B>(3),
+
+<B><A HREF="an_destroy.3.html">an_destroy</A></B>(3),
+
+<B><A HREF="an_geterror.3.html">an_geterror</A></B>(3),
+
+<B><A HREF="an_gethostbyname.3.html">an_gethostbyname</A></B>(3),
+
+<B><A HREF="an_getpeername.3.html">an_getpeername</A></B>(3),
+
+<B><A HREF="an_getsockname.3.html">an_getsockname</A></B>(3),
+
+<B><A HREF="an_listen.3.html">an_listen</A></B>(3),
+
+<B><A HREF="an_new_connection.3.html">an_new_connection</A></B>(3),
+
+<B><A HREF="an_recv.3.html">an_recv</A></B>(3),
+
+<B><A HREF="an_send.3.html">an_send</A></B>(3),
+
+<B><A HREF="an_set_authscheme.3.html">an_set_authscheme</A></B>(3),
+
+<B><A HREF="an_set_blocking.3.html">an_set_blocking</A></B>(3),
+
+<B><A HREF="an_set_credentials.3.html">an_set_credentials</A></B>(3),
+
+<B><A HREF="an_set_proxy.3.html">an_set_proxy</A></B>(3),
+
+<B><A HREF="an_set_proxy_url.3.html">an_set_proxy_url</A></B>(3),
+
+<B><A HREF="an_unset_proxy.3.html">an_unset_proxy</A></B>(3)
+
+<A NAME="lbAE">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<P>
+
+Malcolm Smith &lt;<A HREF="mailto:malxau@users.sourceforge.net">malxau@users.sourceforge.net</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">SEE ALSO</A><DD>
+<DT><A HREF="#lbAE">AUTHOR</A><DD>
+</DL>
+<HR>
+Time: 14:19:44 GMT, January 09, 2005
+</BODY>
+</HTML>

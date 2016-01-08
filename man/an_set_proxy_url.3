@@ -1,0 +1,67 @@
+.TH AN_SET_PROXY_URL 3 2005-01-03 "Antinat" "Antinat Programmer's Manual"
+.SH NAME
+.PP
+an_set_proxy_url - set the location and type of the proxy server
+.SH SYNOPSIS
+.PP
+.B #include <antinat.h>
+.sp
+.BI "int an_set_proxy_url(ANCONN " s ", const char * " proxy_url ");"
+.SH DESCRIPTION
+.PP
+The
+.BR an_set_proxy_url (3)
+function is used to specify the proxy server to use and the type of that
+proxy server.  This is a simplified interface; for full control over the
+proxy specification, use the
+.BR an_set_proxy (3)
+function.
+.PP
+Proxy URLs are formed as follows: a proxy type, which can be one of:
+.BR socks4 ,
+.BR socks5 ,
+or
+.BR https ;
+followed by the '://' string (without quotes.)  Following that is the
+fully qualified hostname, and optionally, a colon (':') and port number.
+If not specified, the default port number is 1080.
+The default values used when a socket is created are determined by the
+.I AN_PROXY
+environment variable.
+.PP
+.I s
+is a socket previously created with
+.BR an_new_connection (3).
+.PP
+.I url
+is a NULL-terminated character array specifying the proxy url, described
+above.  An example of this url could be
+.BR socks4://socks.mycompany.com:10080 .
+.SH RETURN VALUE
+.PP
+This call returns
+.B AN_ERROR_SUCCESS
+to indicate successful completion.
+.SH ERRORS
+.TP
+.B AN_ERROR_INVALIDARG
+The socket handle is invalid, or the url is invalid.
+.TP
+.B AN_ERROR_NOMEM
+There was not enough memory remaining to allocate space to store the
+proxy hostname.
+.TP
+.B AN_ERROR_NOTSUPPORTED
+An attempt was made to specify a proxy server type not supported by this
+library.  Note that this function cannot be used to establish direct
+connections; use the
+.BR an_unset_proxy (3)
+function instead.
+.SH "SEE ALSO"
+.PP
+.BR an_new_connection (3),
+.BR an_set_proxy (3),
+.BR an_unset_proxy (3)
+.SH AUTHOR
+.PP
+Malcolm Smith <malxau@users.sourceforge.net>

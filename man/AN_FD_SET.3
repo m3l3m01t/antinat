@@ -1,0 +1,63 @@
+.TH AN_FD_SET 3 2005-01-02 "Antinat" "Antinat Programmer's Manual"
+.SH NAME
+.PP
+AN_FD_SET - place an Antinat connection handle into a socket set.
+.SH SYNOPSIS
+.PP
+.B #include <antinat.h>
+.sp
+.BI "int AN_FD_SET(ANCONN " s ", struct fd_set * " fds ", int " top ");"
+.SH DESCRIPTION
+.PP
+The
+.BR AN_FD_SET (3)
+function inserts an Antinat socket into a set of file descriptors.  This
+set of file descriptors can be used with
+.BR select .
+Use the
+.BR AN_FD_ISSET (3)
+function to determine if a file descriptor is in the set, or
+.BR AN_FD_CLR (3)
+to remove the file descriptor from the set.
+This function should be considered equivalent to the
+.BR FD_SET (3)
+macro in your sockets library, except that it is for use with
+proxy-capable sockets, and supports an extension for determining the
+highest numbered file descriptor.
+.PP
+.I s
+is a socket previously created with
+.BR an_new_connection (3).
+.PP
+.I fds
+is an fd_set socket structure.  Consult your platform's documentation for
+the
+.BR select 
+function for more information about this structure.  It will
+contain a list of file descriptors suitable for use with the
+.BR select 
+call.
+.PP
+.I top
+is the previous highest numbered file descriptor.  Select requires the highest
+numbered file descriptor in a set.  The highest numbered file descriptor will
+be returned, and this may be larger than the top value if required to
+accommodate the freshly inserted file descriptor.
+
+.SH RETURN VALUE
+.PP
+The return value is the highest numbered file descriptor in the set.  This
+value is required by
+.BR select .
+.SH ERRORS
+.PP
+There is no error return.
+.SH "SEE ALSO"
+.PP
+.BR select ,
+.BR AN_FD_CLR (3),
+.BR AN_FD_ISSET (3),
+.BR an_new_connection (3)
+.SH AUTHOR
+.PP
+Malcolm Smith <malxau@users.sourceforge.net>

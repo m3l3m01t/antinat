@@ -1,0 +1,23 @@
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+sysconfdir=@sysconfdir@
+localstatedir=@localstatedir@
+LOGDIR=@LOGDIR@
+INSTALL=@INSTALL@
+
+all: antinat.xml
+
+antinat.xml: antinat.xml.in
+	sed -e 's!#LOGDIR#!$(LOGDIR)!g' antinat.xml.in>antinat.xml
+
+clean:
+	rm -f antinat.xml
+
+distclean: clean
+	rm -f Makefile
+
+install: all
+	$(INSTALL) -d "$(sysconfdir)"
+	$(INSTALL) -d "$(LOGDIR)"
+	$(INSTALL) -m 0600 antinat.xml "$(sysconfdir)"

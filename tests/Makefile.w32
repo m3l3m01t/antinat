@@ -1,0 +1,26 @@
+
+!include <ntwin32.mak>
+!include "../w32bcfg.mak"
+
+OBJS=an-tests.obj
+MYLIBS=wsock32.lib ..\client\antinat.lib
+
+ROOTNAME=an-tests
+
+TARGET=$(ROOTNAME).exe
+
+all: $(TARGET)
+
+clean:
+	@if exist *.obj erase *.obj
+	@if exist *.exe erase *.exe
+	@if exist *.pch erase *.pch
+	@if exist *.pdb erase *.pdb
+	@if exist *.ilk erase *.ilk
+
+$(ROOTNAME).exe: $(OBJS)
+	@$(link) $(LDFLAGS) $(OBJS) -out:$(ROOTNAME).exe -subsystem:console $(LIBS) $(MYLIBS)
+
+.c.obj:
+	@$(CC) $(CFLAGS) -I..\client -DWIN32_NO_CONFIG_H -c $<
+

@@ -1,0 +1,52 @@
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+sysconfdir=@sysconfdir@
+SUBDIRS=client server etc man tests
+INSTALL=@INSTALL@
+MINGW32=@MINGW32@
+all: all-recurse
+
+clean: clean-recurse clean-real
+
+clean-real:
+	rm -fR config.log config.status config.cache *cache* *~
+	rm -f antinat-win32-installer.exe
+
+distclean: distclean-recurse clean-real
+	rm -f aclocal.m4 Makefile config.h libtool
+
+allclean: distclean
+	rm -f configure
+
+install: install-recurse
+
+all-recurse:
+	list='$(SUBDIRS)'; for subdir in $$list; do \
+		cd $$subdir && $(MAKE) all && cd ..; \
+	done
+
+install-recurse:
+	list='$(SUBDIRS)'; for subdir in $$list; do \
+		cd $$subdir && $(MAKE) install && cd ..; \
+	done
+
+clean-recurse:
+	list='$(SUBDIRS)'; for subdir in $$list; do \
+		cd $$subdir && $(MAKE) clean && cd ..; \
+	done
+
+distclean-recurse:
+	list='$(SUBDIRS)'; for subdir in $$list; do \
+		cd $$subdir && $(MAKE) distclean && cd ..; \
+	done
+
+linecount:
+	wc -l `find . -name \*.cpp` `find . -name \*.c` `find . -name \*.h` `find . -name \*.rc`
+
+ifeq ($(MINGW32),yes)
+distribution: all-recurse
+	strip server/antinat.exe
+	makensis //V2 //DMINGW antinat.nsi
+endif
+

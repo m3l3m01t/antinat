@@ -1,0 +1,78 @@
+.TH AN_BIND_TOSOCKADDR 3 2005-01-02 "Antinat" "Antinat Programmer's Manual"
+.SH NAME
+.PP
+an_bind_tosockaddr - bind to an incoming address
+.SH SYNOPSIS
+.PP
+.B #include <antinat.h>
+.sp
+.BI "int an_bind_tosockaddr(ANCONN " s ", struct sockaddr  *" address ", int " length ");"
+.SH DESCRIPTION
+.PP
+The
+.BR an_bind_tosockaddr (3)
+function is used allow incoming connections from the specified address.
+In order to accept any incoming connection,
+.BR an_listen (3)
+must be called on the bound socket.  For proxy-based connections, only one
+incoming connection is allowed on any listening socket.  Accepting a
+connection will use the primary socket for communication and will not create
+any other socket.
+.PP
+.I s
+is a socket previously created with
+.BR an_new_connection (3)
+call.
+.PP
+.I address
+is a filled out sockaddr structure, containing an address family, address,
+and port that an incoming connection should be allowed from.
+.PP
+.I length
+is the length of the sockaddr structure, as determined by sizeof.
+.SH NOTES
+.PP
+Although there is planned support for non-blocking sockets in a future release,
+this call should be considered a blocking call.  A non-blocking socket will be
+silently (and temporarily) changed to a blocking one to process the
+connection.
+.SH RETURN VALUE
+.PP
+This call returns
+.B AN_ERROR_SUCCESS
+to indicate successful completion.
+.SH ERRORS
+.TP
+.B AN_ERROR_AUTH
+The proxy would not accept the authentication credentials that were
+supplied to it.
+.TP
+.B AN_ERROR_INVALIDARG
+The socket handle is invalid, or the address structure doesn't point to
+anything.
+.TP
+.B AN_ERROR_NAMERESOLVE
+Could not resolve the proxy hostname into an address.
+.TP
+.B AN_ERROR_NOTSUPPORTED
+This call cannot be made on the type of socket, or cannot return socket
+information for this type of connection.
+.TP
+.B AN_ERROR_ORDER
+This call must be called without having performed any operation on the socket
+other than
+.BR an_new_connection (3).
+.TP
+.B AN_ERROR_NETWORK
+Could not read information from the network; a network error occurred.
+.TP
+.B AN_ERROR_PROXY
+The proxy failed to successfully process the incoming connection.
+.SH "SEE ALSO"
+.PP
+.BR an_accept (3),
+.BR an_bind_tohostname (3),
+.BR an_new_connection (3)
+.SH AUTHOR
+.PP
+Malcolm Smith <malxau@users.sourceforge.net>

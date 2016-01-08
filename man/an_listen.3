@@ -1,0 +1,67 @@
+.TH AN_LISTEN 3 2005-01-03 "Antinat" "Antinat Programmer's Manual"
+.SH NAME
+.PP
+an_listen - listen for incoming connections on a proxy-capable socket
+.SH SYNOPSIS
+.PP
+.B #include <antinat.h>
+.sp
+.BI "int an_listen(ANCONN " s ");"
+.SH DESCRIPTION
+.PP
+The
+.BR an_listen (3)
+function is used to wait for an incoming connection on a socket that was
+created earlier and switched into bound mode using the
+.BR an_bind_tohostname (3)
+or
+.BR an_bind_tosockaddr (3)
+calls.  For proxy-based connections, only one incoming connection is allowed on
+any listening socket.  Accepting a connection will use the primary socket for
+communication and will not create any other socket.
+.PP
+.I s
+is a socket previously created with
+.BR an_new_connection (3),
+and bound with the
+.BR an_bind_tohostname (3)
+or
+.BR an_bind_tosockaddr (3)
+calls.
+.SH NOTES
+.PP
+Although there is planned support for non-blocking sockets in a future release,
+this call should be considered a blocking call.  A non-blocking socket will be
+silently (and temporarily) changed to a blocking one to process the
+connection.
+.SH RETURN VALUE
+.PP
+This call returns
+.B AN_ERROR_SUCCESS
+to indicate successful completion.
+.SH ERRORS
+.TP
+.B AN_ERROR_INVALIDARG
+The socket handle is invalid.
+.TP
+.B AN_ERROR_NETWORK
+A network error occurred attempting to switch to listen mode.  See listen
+for more information on what could cause this to happen.
+.TP
+.B AN_ERROR_NOTSUPPORTED
+This call cannot be made on the type of socket.
+.TP
+.B AN_ERROR_ORDER
+This call must be called after a prior successful call to
+.BR an_bind_tosockaddr (3)
+or
+.BR an_bind_tohostname (3).
+.SH "SEE ALSO"
+.PP
+.BR an_accept (3),
+.BR an_bind_tohostname (3),
+.BR an_bind_tosockaddr (3),
+.BR an_new_connection (3)
+.SH AUTHOR
+.PP
+Malcolm Smith <malxau@users.sourceforge.net>

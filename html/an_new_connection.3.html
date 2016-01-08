@@ -1,0 +1,107 @@
+
+<HTML><HEAD><TITLE>Manpage of AN_NEW_CONNECTION</TITLE>
+</HEAD><BODY>
+<H1>AN_NEW_CONNECTION</H1>
+Section: Antinat Programmer's Manual (3)<BR>Updated: 2005-01-03<BR><A HREF="#index">Index</A>
+<A HREF="antinat.3.html">Return to Main Contents</A><HR>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+<P>
+
+an_new_connection - create a socket handle
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<P>
+
+<B>#include &lt;antinat.h&gt;</B>
+
+<P>
+<B>ANCONN an_new_connection();</B>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+The
+<B><A HREF="an_new_connection.3.html">an_new_connection</A></B>(3)
+
+function is used to create a new connection handle, performing any allocation
+and initialisation necessary.  Any successfully created connection must be
+cleaned up when it is no longer required with the
+<B><A HREF="an_destroy.3.html">an_destroy</A></B>(3)
+
+function.  After the connection handle has been created, it should be
+initialised with whatever proxy settings are required, then connected or
+bound as required.  After the connection has been closed, the connection
+handle can be reused, and will remember all of the proxy setting information
+associated with it.
+<P>
+
+A freshly created connection handle will be created with default
+proxy information.  By default, the handle will not be associated with
+any proxy server, and will not contain any credentials, and will be a blocking
+connection.  However, if the
+<I>AN_PROXY</I>
+
+environment variable is declared, it can contain a url specifying the proxy
+server that should be used.  In addition, the
+<I>AN_USER</I>
+
+and
+<I>AN_PASS</I>
+
+variables can specify the username and password respectively, if the
+specified proxy server requires authentication.  By default, any available
+authentication scheme can be used.
+<A NAME="lbAE">&nbsp;</A>
+<H2>RETURN VALUE</H2>
+
+<P>
+
+This call returns a valid connection handle, or NULL if a connection handle
+could not be created.
+<A NAME="lbAF">&nbsp;</A>
+<H2>ERRORS</H2>
+
+<P>
+
+If an error occurs, the return value will be NULL.  This is most likely an
+out of memory condition.
+<A NAME="lbAG">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<P>
+
+<B><A HREF="an_destroy.3.html">an_destroy</A></B>(3),
+
+<B><A HREF="an_set_credentials.3.html">an_set_credentials</A></B>(3),
+
+<B><A HREF="an_set_proxy_url.3.html">an_set_proxy_url</A></B>(3)
+
+<A NAME="lbAH">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<P>
+
+Malcolm Smith &lt;<A HREF="mailto:malxau@users.sourceforge.net">malxau@users.sourceforge.net</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">RETURN VALUE</A><DD>
+<DT><A HREF="#lbAF">ERRORS</A><DD>
+<DT><A HREF="#lbAG">SEE ALSO</A><DD>
+<DT><A HREF="#lbAH">AUTHOR</A><DD>
+</DL>
+<HR>
+Time: 14:19:44 GMT, January 09, 2005
+</BODY>
+</HTML>

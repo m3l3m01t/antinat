@@ -1,0 +1,35 @@
+
+!include <ntwin32.mak>
+!include "../w32bcfg.mak"
+
+OBJS=an_core.obj an_socks5.obj an_socks4.obj an_ssl.obj an_direct.obj an_proxy.obj iscmd5.obj
+
+ROOTNAME=antinat
+
+TARGET=$(ROOTNAME)st.lib $(ROOTNAME).dll
+
+all: $(TARGET)
+
+clean:
+	@if exist *.obj erase *.obj
+	@if exist *.lib erase *.lib
+	@if exist *.exp erase *.exp
+	@if exist *.dll erase *.dll
+	@if exist *.pch erase *.pch
+	@if exist *.pdb erase *.pdb
+
+$(ROOTNAME)st.lib: $(OBJS)
+	@$(implib) $(ILFLAGS) $(OBJS) -out:$(ROOTNAME)st.lib
+
+$(ROOTNAME).dll: $(OBJS) $(ROOTNAME).def
+!IF $(MSC_VER) == 8
+	@$(implib) $(ILFLAGS) /out:$(ROOTNAME).lib /def:$(ROOTNAME).def /machine:$(CPU)
+	@$(link) $(DLL_LDFLAGS) $(DLL_LIBS) /dll -entry:_DllMainCRTStartup$(DLLENTRY) \
+	/out:$(ROOTNAME).dll *.obj wsock32.lib $(ROOTNAME).exp /version:0.9
+!ELSE
+	@$(link) $(DLL_LDFLAGS) $(DLL_LIBS) /dll -entry:_DllMainCRTStartup$(DLLENTRY) \
+	/out:$(ROOTNAME).dll /def:$(ROOTNAME).def *.obj wsock32.lib /version:0.9
+!ENDIF
+
+.c.obj:
+	@$(CC) $(CFLAGS) -c $<

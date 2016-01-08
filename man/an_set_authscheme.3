@@ -1,0 +1,58 @@
+.TH AN_SET_AUTHSCHEME 3 2005-01-03 "Antinat" "Antinat Programmer's Manual"
+.SH NAME
+.PP
+an_set_authscheme - allow an authentication scheme to be used on a socket
+.SH SYNOPSIS
+.PP
+.B #include <antinat.h>
+.sp
+.BI "int an_set_authscheme(ANCONN " s ", int " scheme ");"
+.SH DESCRIPTION
+.PP
+The
+.BR an_set_authscheme (3)
+function is used to allow an authentication scheme to be used on a proxy
+capable socket.  By default, all supported authentication schemes are
+allowed. After this function is called however, only schemes that have
+been explicitly allowed under this function will be acceptable.
+Currently defined authentication schemes are:
+.BR AN_AUTH_ANON ,
+.BR AN_AUTH_CLEARTEXT ,
+.BR AN_AUTH_BASIC
+and
+.BR AN_AUTH_CHAP .
+Cleartext and basic can be considered as equivalent, referring to different
+names for different proxy types, but can be used interchangably.  In order
+to reset the authentication schemes chosen, use the
+.BR an_clear_authschemes (3)
+function.
+.PP
+.I s
+is a socket previously created with
+.BR an_new_connection (3).
+.PP
+.I scheme
+is an authentication scheme, any one of 
+.BR AN_AUTH_ANON ,
+.BR AN_AUTH_CLEARTEXT ,
+.BR AN_AUTH_BASIC
+or
+.BR AN_AUTH_CHAP .
+
+.SH RETURN VALUE
+.PP
+This call returns
+.B AN_ERROR_SUCCESS
+to indicate successful completion.
+.SH ERRORS
+.TP
+.B AN_ERROR_INVALIDARG
+The socket handle is invalid, or the authentication scheme is not recognised.
+.SH "SEE ALSO"
+.PP
+.BR an_clear_authschemes (3),
+.BR an_new_connection (3),
+.BR an_set_credentials (3)
+.SH AUTHOR
+.PP
+Malcolm Smith <malxau@users.sourceforge.net>

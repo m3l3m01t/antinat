@@ -1,0 +1,43 @@
+
+!include <ntwin32.mak>
+!include "../w32bcfg.mak"
+
+OBJS=addrinfo.obj auth.obj conn.obj config.obj libds.obj loggers.obj main.obj os_win.obj socks4.obj socks5.obj resource.obj
+MYLIBS=user32.lib advapi32.lib wsock32.lib ..\client\antinatst.lib ..\expat\expat.lib
+
+!IF "$(cvtres)" == ""
+cvtres = REM
+!ENDIF
+
+!IF "$(WITH_FEEDBACK)" == "1"
+FEEDFLAGS=-DWITH_DEBUG
+!ELSE
+FEEDFLAGS=
+!ENDIF
+
+ROOTNAME=antinat
+
+TARGET=$(ROOTNAME).exe
+
+all: $(TARGET)
+
+clean:
+	@if exist *.obj erase *.obj
+	@if exist *.res erase *.res
+	@if exist *.exe erase *.exe
+	@if exist *.aps erase *.aps
+	@if exist *.pch erase *.pch
+	@if exist *.pdb erase *.pdb
+	@if exist *.ilk erase *.ilk
+
+$(ROOTNAME).exe: $(OBJS)
+	@$(link) $(LDFLAGS) $(OBJS) /out:$(ROOTNAME).exe $(LIBS) $(MYLIBS)
+
+.c.obj:
+	@$(CC) $(CFLAGS) $(FEEDFLAGS) -I..\client -I..\expat -DWIN32_NO_CONFIG_H -c $<
+
+.rc.obj:
+	@$(RC) $(RCFLAGS) $<
+	@$(cvtres) -$(CPU) -o resource.obj resource.res
+	@if not exist resource.obj ren resource.res resource.obj
+

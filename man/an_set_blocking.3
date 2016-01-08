@@ -1,0 +1,49 @@
+.TH AN_SET_BLOCKING 3 2005-01-03 "Antinat" "Antinat Programmer's Manual"
+.SH NAME
+.PP
+an_set_blocking - set whether sockets should wait for IO
+.SH SYNOPSIS
+.PP
+.B #include <antinat.h>
+.sp
+.BI "int an_set_blocking(ANCONN " s ", unsigned short " blockingstatus ");"
+.SH DESCRIPTION
+.PP
+The
+.BR an_set_blocking (3)
+function is used to switch sockets between blocking and non-blocking mode.
+In blocking mode, calls to read data from a socket will wait until some
+data is available to be read; in nonblocking mode, these calls will return
+immediately with an error condition.  The only parts of the library which
+currently support non-blocking operation are in
+.BR an_recv (3)
+and
+.BR an_send (3).
+Currently, all other calls will silently switch to blocking mode, perform
+the operation, then switch back to the original blocking status.  In order
+to switch to blocking mode, specify a zero parameter for
+.IR blockingstatus .
+Use a non-zero parameter for non-blocking mode.  Blocking mode is the
+default for all sockets.
+.PP
+.I s
+is a socket previously created with
+.BR an_new_connection (3).
+.PP
+.I blockingstatus
+is set to zero to switch the socket into blocking mode, or non-zero to
+set into non-blocking mode. 
+.SH RETURN VALUE
+.PP
+This call returns
+.B AN_ERROR_SUCCESS
+to indicate successful completion.
+.SH ERRORS
+.PP
+There is no error return.
+.SH "SEE ALSO"
+.PP
+.BR an_new_connection (3)
+.SH AUTHOR
+.PP
+Malcolm Smith <malxau@users.sourceforge.net>

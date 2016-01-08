@@ -1,0 +1,84 @@
+
+<HTML><HEAD><TITLE>Manpage of ANTINAT</TITLE>
+</HEAD><BODY>
+<H1>ANTINAT</H1>
+Section: User Commands  (1)<BR>Updated: 6 January 2005<BR><A HREF="#index">Index</A>
+<A HREF="antinat.3.html">Return to Main Contents</A><HR>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+<P>
+
+antinat - A SOCKS server
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+This program provides a powerful, configurable and flexible SOCKS server.
+<A NAME="lbAD">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-a</B>
+
+<DD>
+On Win32, this option forces antinat to run as a user application (rather
+than as a service.)  This option is not supported on UNIX/Linux.
+<DT><B>-c filename</B>
+
+<DD>
+Specifies a path to antinat.xml.  Normally, this is not used and antinat will
+look for antinat.xml in the path specified for configuration files when it
+was compiled (or on Win32, in the current directory.)
+<DT><B>-h</B>
+
+<DD>
+Display a brief listing of options supported by your build of Antinat.
+<DT><B>-i</B>
+
+<DD>
+On Win32, this option installs the running copy of Antinat as a Win32
+service.  The path and setup for antinat will be determined at runtime.
+This option is not supported on UNIX/Linux.
+<DT><B>-r</B>
+
+<DD>
+On Win32, this option removes the running copy of Antinat from the Win32
+service list.  This option is not supported on UNIX/Linux.
+<DT><B>-x</B>
+
+<DD>
+If specified, this switch forces antinat not to daemonize and to remain
+attached to the console.  Note that this is the only behavior if compiled with
+the --with-feedback configuration option.
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<P>
+
+<B><A HREF="antinat.xml.4.html">antinat.xml</A></B>(4)
+
+<A NAME="lbAF">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<P>
+
+Malcolm Smith &lt;<A HREF="mailto:malxau@users.sourceforge.net">malxau@users.sourceforge.net</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">OPTIONS</A><DD>
+<DT><A HREF="#lbAE">SEE ALSO</A><DD>
+<DT><A HREF="#lbAF">AUTHOR</A><DD>
+</DL>
+<HR>
+Time: 14:19:44 GMT, January 09, 2005
+</BODY>
+</HTML>

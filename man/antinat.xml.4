@@ -1,0 +1,418 @@
+.TH antinat.xml 4 "6 January 2005"
+.SH NAME
+.PP
+antinat.xml - Configuration file for antinat
+.SH DESCRIPTION
+.PP
+This file contains all the configuration information for
+.BR antinat(1).
+The file is arranged in XML format and contains 4 sections: core configuration,
+authchoice rules, filter rules, and logging configuration.  It is strongly
+advisable that these settings be tailored to your environment.
+.LP
+Core configuration and logging configuration takes the form of a keyword
+with a single parameter, value, that contains any information needed for
+that setting.  For example,
+.B <port value='1080'/>
+listens on the default SOCKS port.  All configuration information is
+encapsulated within an
+.B <antinatconfig/>
+tag.
+.SS Core configuration
+.PP
+Although defaults will be used where entries are not present, it is a good
+idea to specify most of the core configuration entries in order to be sure
+what antinat will do as future releases may change default behaviour.
+.TP
+.BI "allowlocalusers"
+This entry allows the server to authenticate SOCKS users against the local
+users on the system.  Without this option, users must be specified using
+the <user/> tag (see below.)
+.B IMPORTANT:
+Because local user passwords are stored in encrypted form, this method of
+authentication can only be used where passwords are sent over the network.
+Currently, therefore, only cleartext authentication can be used to
+authenticate to local users.  In addition, because antinat will need access
+to passwords in /etc/shadow, it must be run as root for this feature to
+work.  On Win32, the user running the server must have 'Act as part of the
+Operating System' user right.  An example of this tag would be
+.IP
+<allowlocalusers/>
+.TP
+.BI "interface"
+This entry specifies the IPv4 interface that antinat will listen for requests
+on.  The default value is 0.0.0.0, which will listen on all available
+interfaces.  If you are operating in a typical environment where only
+internal users should be able to access the server, set this address to the
+internal IP used by your server for maximum security.  Connections blocked
+here also do not require filtration rules to be evaluated.  An example of
+this entry would be
+.IP
+<interface value='192.168.0.1'/>
+.TP
+.BI "maxbindwait"
+When an application requests the server to wait for an incoming connection,
+the server will timeout and close that request if it takes more than a
+certain amount of time to receive any connection.  This value, in seconds,
+tells the server how long to keep the listening socket open for before
+it should fail.  The default value is 60 seconds, which should be
+appropriate in most circumstances, although it could be made much smaller
+with higher-bandwidth connections.  An example would be
+.IP
+<maxbindwait value='10'/>
+.TP
+.BI "maxconnsperthread"
+In order to reduce the number of threads Antinat uses, a seperate thread
+is used to forward data from a number of connections.  After this value
+is reached, a new thread is created.  This value refers to concurrent
+connections; this number of active connections needs to be reached at
+the same time before a new thread will be created.  This value should
+be reasonably high unless operating on an SMP machine.  On Win32, this
+feature is not implemented, and this value is ignored.  The default
+value is 100.  An example would be
+.IP
+<maxconnsperthread value='500'/>
+.TP
+.BI "port"
+This value tells the server what port to listen on.  The default SOCKS port
+is 1080.  Change it if you need to.  Example:
+.IP
+<port value='8080'/>
+.TP
+.BI "throttle"
+If connection fairness is an issue, each connection can be throttled to only
+allow through a certain amount of data per second.  This value is the bytes
+per second that a connection should be throttled to, or zero if no throttling
+is being used.  Throttling is on a per-connection basis only and will not be
+of much use if multiple connections are used to circumvent it.  This value
+is the default value for all connections; it can be overriden by filters,
+which can assign different throttle values depending on a range of criteria.
+Only use this option when necessary.  Example:
+.IP
+<throttle value='8192'/>
+.TP
+.BI "user"
+This entry is used to add a user to the list of users that antinat can
+authenticate against.  You must add users in using this method if you wish
+to use CHAP authentication.  Each user is given a username and password.  If
+the same user exists in this file as on the local system, and authentication
+is supported against the local system, both will be tried in turn, starting
+with the local system.  Example:
+.IP
+<user user='testuser' password='testpass'/> .SS Chaining configuration
+.PP
+Chaining configuration is encapsulated within
+.BR <chain/>
+tags.  Each of these tags must have the
+.BR name
+attribute defined to a value so that the chain can be referenced later
+on.  Chains contain a handful of settings, mostly optional.
+.TP
+.BI "uri"
+This is the only mandatory tag within a chain.  It specifies the upstream
+server, in Antinat Client library notation.  This follows:
+.BR protocol://hostname[:port]
+where protocol is one of https, socks4, or socks5; and the default port
+is 1080.  Example:
+.IP
+<uri value='socks5://socks.mycompany.com'/>
+.TP
+.BI "authscheme"
+This tag can be specified multiple times within each chain section,
+once for every authentication mechanism that will be supported on this
+chain.  The default is to support all the schemes that the client
+library knows about.  In SOCKS5, the server ultimately choses the
+authentication scheme, so order in this setting is irrelevant.  Once
+one authscheme tag is encountered, only listed schemes will be accepted.
+Therefore, including a tag which is non-Anonymous will require connections
+to be authenticated; including anonymous will require connections to
+never be authenticated.  Valid values for this tag are anonymous, cleartext
+and chap.  Authentication credentials will be those supplied by the client,
+unless overridden by the user and password tags; see below.  Example:
+.IP
+<authscheme value='anonymous'/>
+.TP
+.BI "password"
+This tag will override the credentials supplied by the client with a
+specified password; these new credentials will be used to authenticate
+to the upstream server.  Example:
+.IP
+<password value='foobar'/>
+.TP
+.BI "user"
+This tag will override the credentials supplied by the client with a
+specified username; these new credentials will be used to authenticate
+to the upstream server.  Example:
+.IP
+<user value='max'/>
+.SS Logging configuration
+.PP
+Logging configuration is encapsulated within
+.BR <log/>
+tags.
+.TP
+.BI "connlog"
+This entry specifies a location to save connection logging information.
+Connection logging records the date, time, source and destination of
+successful connections.  As with other logs in antinat, to have integrity
+preserved antinat must be shutdown cleanly with a SIGQUIT or SIGINT signal.
+The value parameter is a file path where connection logging should be sent
+to.  Example:
+.IP
+<connlog value='/var/log/antinat/connections'/>
+.TP
+.BI "addrmonthlog"
+This summary log records the amount of data downloaded and uploaded by
+particular IP addresses, and outputs this information to a log once per
+month.  More frequent output can result, however, if the server is restarted
+or stopped.  As with other logs, it is important to shut down antinat cleanly
+with SIGQUIT or SIGINT, or data loss will result. Example:
+.IP
+<addrmonthlog value='/var/log/antinat/addrmonth'/>
+.TP
+.BI "addrdaylog"
+This summary log records the amount of data downloaded and uploaded by
+particular IP addresses, and outputs this information to a log once per
+day.  More frequent output can result, however, if the server is restarted
+or stopped.  As with other logs, it is important to shut down antinat cleanly
+with SIGQUIT or SIGINT, or data loss will result. Example:
+.IP
+<addrdaylog value='/var/log/antinat/addrday'/>
+.TP
+.BI "addrhourlog"
+This summary log records the amount of data downloaded and uploaded by
+particular IP addresses, and outputs this information to a log once per
+hour.  More frequent output can result, however, if the server is restarted
+or stopped.  As with other logs, it is important to shut down antinat cleanly
+with SIGQUIT or SIGINT, or data loss will result. Example:
+.IP
+<addrhourlog value='/var/log/antinat/addrhour'/>
+.TP
+.BI "addrminutelog"
+This summary log records the amount of data downloaded and uploaded by
+particular IP addresses, and outputs this information to a log once per
+minute.  More frequent output can result, however, if the server is restarted
+or stopped.  As with other logs, it is important to shut down antinat cleanly
+with SIGQUIT or SIGINT, or data loss will result. Example:
+.IP
+<addrminutelog value='/var/log/antinat/addrminute'/>
+.TP
+.BI "usermonthlog"
+This summary log records the amount of data downloaded and uploaded by
+particular users, and outputs this information to a log once per month.
+If a user has not been authenticated, the user "Anonymous" is used.
+More frequent output can result, however, if the server is restarted
+or stopped.  As with other logs, it is important to shut down antinat cleanly
+with SIGQUIT or SIGINT, or data loss will result. Example:
+.IP
+<usermonthlog value='/var/log/antinat/usermonth'/>
+.TP
+.BI "userdaylog"
+This summary log records the amount of data downloaded and uploaded by
+particular users, and outputs this information to a log once per day.
+If a user has not been authenticated, the user "Anonymous" is used.
+More frequent output can result, however, if the server is restarted
+or stopped.  As with other logs, it is important to shut down antinat cleanly
+with SIGQUIT or SIGINT, or data loss will result. Example:
+.IP
+<userdaylog value='/var/log/antinat/userday'/>
+.TP
+.BI "userhourlog"
+This summary log records the amount of data downloaded and uploaded by
+particular users, and outputs this information to a log once per hour.
+If a user has not been authenticated, the user "Anonymous" is used.
+More frequent output can result, however, if the server is restarted
+or stopped.  As with other logs, it is important to shut down antinat cleanly
+with SIGQUIT or SIGINT, or data loss will result. Example:
+.IP
+<userhourlog value='/var/log/antinat/userhour'/>
+.TP
+.BI "userminutelog"
+This summary log records the amount of data downloaded and uploaded by
+particular users, and outputs this information to a log once per minute.
+If a user has not been authenticated, the user "Anonymous" is used.
+More frequent output can result, however, if the server is restarted
+or stopped.  As with other logs, it is important to shut down antinat cleanly
+with SIGQUIT or SIGINT, or data loss will result. Example:
+.IP
+<userminutelog value='/var/log/antinat/userminute'/>
+.SS Authentication Choice rules
+.PP
+In SOCKS5, clients connect to the server and provide a list of authentication
+mechanisms which they can support, and servers choose an authentication
+mechanism, then the authentication itself is carried out.  Authentiation
+Choice rules are antinat's approach to how it will select an authentication
+mechanism.  Rules are traversed, in order, until a
+.BR <select/>
+statement is reached that corresponds to a mechanism that the client supports.
+If there is no mutually agreeable mechanism, the SOCKS5 connection will fail.
+.LP
+.BR <authchoice/>
+tags can contain three attributes: source_addrtype, source_addr, and
+source_port.  Each of these attributes, and the formats that they take, are
+documented below in the "Filters" section.  Nested within authchoice tags
+are
+.BR <select/>
+tags, which contain one attribute:
+.BR mechanism.
+Currently, valid mechanisms are anonymous, cleartext, and chap.  For example,
+.IP
+<authchoice source_addrtype='ipv4'><authchoice source_addr='192.168.0.0/24'/><select mechanism='anonymous'/></authchoice></authchoice>
+.LP
+will allow IPv4 connections from within a 192.168.0.x network to use anonymous
+authentication; no other mechanisms are supported.  If clients do not support
+anonymous, connections will fail; and no SOCKS5 connection will be negotiated
+with that is not from 192.168.0.x.
+.LP
+Note in the above example that source_addrtype must preceed source_addr;
+although IPv4 is currently the only address type that can be specified,
+different address types will have different representations and it is necessary
+to know which type is being used for it to be parsed.  The following example
+extends the first by supporting CHAP authentication from any IPv4 connection,
+including outside of 192.168.0.x:
+.IP
+<authchoice source_addrtype='ipv4'><authchoice source_addr='192.168.0.0/24'/><select mechanism='anonymous'/></authchoice><select mechanism='chap'/></authchoice>
+.LP
+If clients support anonymous and are within 192.168.0.x, it will be used,
+and CHAP may be used if it is the only scheme a client supports.  By contrast,
+outside connections will only be allowed if authenticated with CHAP.  If the
+outside client does not support CHAP, no connection will be allowed.
+.SS Filter rules
+.PP
+Incoming connections are also filtered on a series of rules.  Filters are
+applied once the full request has been received by the server but before
+any connection is made.  Filters are the only way to control SOCKS 4
+connections, and are only applied if a SOCKS5 client has already passed the
+authentication choice rules above.  Filters support are parsed in the same
+way as Authentication Choice rules, except parsing will stop as soon as the
+first
+.BR <accept/>
+,
+.BR <reject/>
+or
+.BR <chain/>
+tag is reached.  In order to use chaining, the name attribute must be set
+to the name of the chain as it was declared in the Chains Section (above.)
+.LP
+Each
+.BR <filter/>
+tag can contain a number of attributes, each of which must be true in order
+to enter the filter and process any other filters within.  If any are false,
+rules are processed starting immediately after that filter tag.  Valid
+attributes int filter tags are:
+.TP
+.BI "authscheme"
+This attribute is used to specify the authentication scheme that was used.
+Valid schemes are anonymous, cleartext and chap.  For SOCKS 4, only anonymous
+will ever occur; for SOCKS5, this value is a result of the earlier
+authentication choice section.  Example:
+.IP
+<filter dest_port='21' authscheme='cleartext'><chain name='chaplink'/></filter>
+.TP
+.BI "authsrc"
+This attribute is used to specify where the user credentials came from that
+the user authenticated against.  Valid sources are anonymous, config, and
+local.  This can be used where it is desirable to have local users operate
+with different authority to config-file users.  Example:
+.IP
+<filter dest_port='110' authsrc='local'/><accept/></filter>
+.TP
+.BI "dest_addrtype"
+This attribute is used to specify the network protocol that is being
+requested to fulfil a connection.  Valid protocols are ipv4 and ipv6.  Note
+that only ipv4 has an address filter for it, so allowing ipv6 allows all
+IPv6 addresses.  It is invalid to nest this attribute: if an address type has
+already been checked to be a value, it should not be rechecked because it will
+never change; and conflicting addrtypes would never be parsed.  Example:
+.IP
+<filter dest_addrtype='ipv6'><reject/></filter>
+.TP
+.BI "dest_addr"
+This attribute is used to specify the address of a machine that a client is
+wanting to connect to.  Currently, this can only be specified as an IPv4
+address.  It must be preceeded (somewhere in the heirarchy) by a dest_addrtype
+so that the address can be parsed correctly.  In IPv4, a subnet mask can be
+specified using the / notation, so that only a partial address match is
+carried out.  Example:
+.IP
+<filter dest_addrtype='ipv4'><filter dest_addr='192.168.0.0/16'><reject/></filter></filter>
+.TP
+.BI "dest_port"
+This attribute specifies the numeric destination port that the client wishes
+to connect to.  This can be used to restrict access to only certain services,
+or block to specific services.  For example:
+.IP
+<filter dest_port='139'><reject/></filter>
+.TP
+.BI "socksop"
+SOCKS is capable of performing a range of tasks on behalf of a client.  The
+most common is to set up a connection to a remote host.  In addition, SOCKS can
+listen for a remote host to contact the server, and forward this connection to
+an internal client (this is done with ftp.)  SOCKS5 can also set up UDP
+forwards, and can identify what server is being used remotely.  Valid values
+for this attribute are: connect, bind, udp, and ident.  Example:
+.IP
+<filter socksop='udp'><reject/></filter>
+.TP
+.BI "source_addrtype"
+This attribute is used to specify the network protocol that a connection
+originated from.  Valid protocols are ipv4 and ipv6.  Note that only ipv4 has
+an address filter for it, so allowing ipv6 allows all IPv6 addresses.  It is
+invalid to nest this attribute: if an address type has already been checked to
+be a value, it should not be rechecked because it will never change; and
+conflicting addrtypes would never be parsed.  Example:
+.IP
+<filter source_addrtype='ipv6'><reject/></filter>
+.TP
+.BI "source_addr"
+This attribute is used to specify the address of a machine that is requesting
+services from antinat.  Currently, this can only be specified as an IPv4
+address.  It must be preceeded (somewhere in the heirarchy) by a
+source_addrtype so that the address can be parsed correctly.  In IPv4, a
+subnet mask can be specified using the / notation, so that only a partial
+address match is carried out.  Example:
+.IP
+<filter source_addrtype='ipv4'><filter source_addr='131.170.0.0/16'><accept/></filter></filter>
+.TP
+.BI "source_port"
+This attribute specifies the numeric source port that the client is connecting
+from.  This is rarely useful and is provided primarily for symmetry.  Clients
+generally connect from ephemeral ports, so source ports are typically random.
+However, this could be used to restrict access to only certain services,
+or block to specific services.  For example:
+.IP
+<filter source_port='21'><reject/></filter>
+.TP
+.BI "throttle"
+This attribute specifies the throttle that connections within this filter
+block should be limited to.  If no value is specified, the previous matching
+filter throttle is applied; if there is no previous filter throttle, the
+global throttle (from core configuration) is applied; if there is no
+global throttle, no throttle will be used.  Throttling can also be disabled
+as part of a filter by setting the value to zero.  A throttle refers to the
+bytes per second that a connection should be limited to.  Throttling is on
+a per-connection basis, and multiple connections could be used to
+circumvent it.  For example:
+.IP
+<filter user='bob' throttle='4096'><accept/></filter>
+.TP
+.BI "user"
+This attribute specifies a particular username.  It can be used to provide
+certain users with more access, or to restrict access for those who do not
+require more.  Where a connection has been made anonymously, the username will
+always be empty.  Example:
+.IP
+<filter user='root'><reject/></filter>
+.TP
+.BI "version"
+This attribute can be used to check which version of SOCKS the client is
+connecting with.  Valid values are 4 and 5.  Example:
+.IP
+<filter version='4'><chain name='socks5link'/></filter>
+
+.SH "SEE ALSO"
+.PP
+.BR antinat (1)
+.SH AUTHOR
+.PP
+Malcolm Smith <malxau@users.sourceforge.net>

@@ -1,0 +1,74 @@
+
+<HTML><HEAD><TITLE>Manpage of AN_GETERROR</TITLE>
+</HEAD><BODY>
+<H1>AN_GETERROR</H1>
+Section: Antinat Programmer's Manual (3)<BR>Updated: 2005-01-02<BR><A HREF="#index">Index</A>
+<A HREF="antinat.3.html">Return to Main Contents</A><HR>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+<P>
+
+an_geterror - return Antinat's error code in string form
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<P>
+
+<B>#include &lt;antinat.h&gt;</B>
+
+<P>
+<B>char * an_geterror(int </B><I>error</I><B>);</B>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+The
+<B><A HREF="an_geterror.3.html">an_geterror</A></B>(3)
+
+function is used to retrieve a human readable explanation of the error.
+The exact strings contained here are liable to change and could be
+potentially lengthy.
+<P>
+
+<I>error</I>
+
+is an error code returned by a call to another Antinat function.
+<A NAME="lbAE">&nbsp;</A>
+<H2>RETURN VALUE</H2>
+
+<P>
+
+This call returns a pointer to a read-only string containing the error
+message, or NULL if the error code is invalid.
+<A NAME="lbAF">&nbsp;</A>
+<H2>ERRORS</H2>
+
+<P>
+
+The return value will be NULL if an error occurs.
+<A NAME="lbAG">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<P>
+
+Malcolm Smith &lt;<A HREF="mailto:malxau@users.sourceforge.net">malxau@users.sourceforge.net</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">RETURN VALUE</A><DD>
+<DT><A HREF="#lbAF">ERRORS</A><DD>
+<DT><A HREF="#lbAG">AUTHOR</A><DD>
+</DL>
+<HR>
+Time: 14:19:44 GMT, January 09, 2005
+</BODY>
+</HTML>

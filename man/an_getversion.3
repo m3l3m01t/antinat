@@ -1,0 +1,29 @@
+.TH AN_GETVERSION 3 2005-01-09 "Antinat" "Antinat Programmer's Manual"
+.SH NAME
+.PP
+an_getversion - retrieve Antinat library version
+.SH SYNOPSIS
+.PP
+.B #include <antinat.h>
+.sp
+.BI "unsigned int an_getversion();"
+.SH DESCRIPTION
+.PP
+The
+.BR an_getversion (3)
+function is used to identify the version of the library in use.  This can be
+used to determine if a given function is available.  It can be compared to
+the AN_VERSION constant to determine if the version of the library is older
+than the version for which your application was compiled.
+.SH RETURN VALUE
+.PP
+This call returns the client library version number.
+.SH ERRORS
+.PP
+There is no error return.
+.SH "SEE ALSO"
+.PP
+.BR antinat (3)
+.SH AUTHOR
+.PP
+Malcolm Smith <malxau@users.sourceforge.net>

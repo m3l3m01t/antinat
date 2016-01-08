@@ -1,0 +1,16 @@
+
+Short term (next 0.9x):
+
+- Fix that binding issue! Record routing tables, somehow.
+- Thread reduction on Win32 - how!?
+- IPv6 filtration
+- More Tests
+- Wrappers in client, at least enough to support KDE
+- UDP in client
+
+Pipe dreams (version 2, 2010?):
+
+- GSSAPI
+- SSL
+
+- Your input is always welcome here.

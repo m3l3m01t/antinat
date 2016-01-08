@@ -1,0 +1,33 @@
+Notes on installing antinat 0.90:
+
+This product requires GNU make or Microsoft NMAKE.  If you are building on
+*nix, and don't have GNU make, we recommend you obtain it before attempting
+to install antinat.
+
+BUGS:
+
+UDP on OS X.  Apparently it thinks the TCP and UDP connections come from
+different places (one on loopback, other on ethernet.)  Makes no sense to me.
+
+Binding still reports zero as the address.  Suprisingly, this seems to work
+with a lot of applications that use this.  The issue here is that you can't
+*know* what IP the remote host should contact just by listening; the
+interface is only determined when the connection arrives, but client apps
+need to know where to send the remote host or no connection will arrive.
+Solving this problem requires knowing the complete routing table on the
+machine on which antinat runs.
+
+DANGEROUS STUFF:
+IPv6 support compiles, but is somewhat incomplete and is not very well tested.
+There is currently no support for creating IPv6 address firewall rules, so it's
+an all-or-nothing affair.  By default, IPv6 support is not compiled.  If you
+want it, compile --with-ipv6.  Also, there appear to be issues running IPv4
+if compiling --with-ipv6.
+
+Win32 builds compile with MinGW, or MSVC.
+
+UDP support is in there, but I'm finding it really hard to test due to a lack
+of UDP client apps.  Hopefully, if I can't find them, you're not using them,
+but if you are, let me know of a good SOCKSified UDP app so I can take UDP for
+a spin.
+

@@ -1,0 +1,49 @@
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+mandir=@mandir@
+INSTALL=@INSTALL@
+
+all:
+
+clean:
+
+distclean: clean
+	rm -f Makefile
+
+install: all
+	$(INSTALL) -d "$(mandir)/man1"
+	$(INSTALL) -d "$(mandir)/man3"
+	$(INSTALL) -d "$(mandir)/man4"
+	$(INSTALL) -c -m 0644 antinat.1 "$(mandir)/man1/antinat.1"
+	$(INSTALL) -c -m 0644 antinat.xml.4 "$(mandir)/man4/antinat.xml.4"
+	$(INSTALL) -c -m 0644 an_accept.3 "$(mandir)/man3/an_accept.3"
+	$(INSTALL) -c -m 0644 an_bind_tohostname.3 "$(mandir)/man3/an_bind_tohostname.3"
+	$(INSTALL) -c -m 0644 an_bind_tosockaddr.3 "$(mandir)/man3/an_bind_tosockaddr.3"
+	$(INSTALL) -c -m 0644 an_clear_authschemes.3 "$(mandir)/man3/an_clear_authschemes.3"
+	$(INSTALL) -c -m 0644 an_close.3 "$(mandir)/man3/an_close.3"
+	$(INSTALL) -c -m 0644 an_connect_tohostname.3 "$(mandir)/man3/an_connect_tohostname.3"
+	$(INSTALL) -c -m 0644 an_connect_tosockaddr.3 "$(mandir)/man3/an_connect_tosockaddr.3"
+	$(INSTALL) -c -m 0644 an_destroy.3 "$(mandir)/man3/an_destroy.3"
+	$(INSTALL) -c -m 0644 AN_FD_CLR.3 "$(mandir)/man3/AN_FD_CLR.3"
+	$(INSTALL) -c -m 0644 AN_FD_ISSET.3 "$(mandir)/man3/AN_FD_ISSET.3"
+	$(INSTALL) -c -m 0644 AN_FD_SET.3 "$(mandir)/man3/AN_FD_SET.3"
+	$(INSTALL) -c -m 0644 an_geterror.3 "$(mandir)/man3/an_geterror.3"
+	$(INSTALL) -c -m 0644 an_gethostbyname.3 "$(mandir)/man3/an_gethostbyname.3"
+	$(INSTALL) -c -m 0644 an_getpeername.3 "$(mandir)/man3/an_getpeername.3"
+	$(INSTALL) -c -m 0644 an_getsockname.3 "$(mandir)/man3/an_getsockname.3"
+	$(INSTALL) -c -m 0644 an_getversion.3 "$(mandir)/man3/an_getversion.3"
+	$(INSTALL) -c -m 0644 an_listen.3 "$(mandir)/man3/an_listen.3"
+	$(INSTALL) -c -m 0644 an_new_connection.3 "$(mandir)/man3/an_new_connection.3"
+	$(INSTALL) -c -m 0644 an_recv.3 "$(mandir)/man3/an_recv.3"
+	$(INSTALL) -c -m 0644 an_send.3 "$(mandir)/man3/an_send.3"
+	$(INSTALL) -c -m 0644 an_set_authscheme.3 "$(mandir)/man3/an_set_authscheme.3"
+	$(INSTALL) -c -m 0644 an_set_blocking.3 "$(mandir)/man3/an_set_blocking.3"
+	$(INSTALL) -c -m 0644 an_set_credentials.3 "$(mandir)/man3/an_set_credentials.3"
+	$(INSTALL) -c -m 0644 an_set_proxy.3 "$(mandir)/man3/an_set_proxy.3"
+	$(INSTALL) -c -m 0644 an_set_proxy_url.3 "$(mandir)/man3/an_set_proxy_url.3"
+	$(INSTALL) -c -m 0644 an_unset_proxy.3 "$(mandir)/man3/an_unset_proxy.3"
+
+html:
+	for i in *.[1345]; do \
+		man2html -p -r $$i|grep -v '^Content-type:'|grep -v 'This document was created by'|grep -v man2html|grep -v 'using the manual pages.<BR>'|sed -e 's!../man[1345]/!!'|sed -e 's!<A HREF="file:/usr/include/antinat.h">antinat.h</A>!antinat.h!'|sed -e 's!../index.html!antinat.3.html!' >../html/$$i.html;done

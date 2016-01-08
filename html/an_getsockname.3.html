@@ -1,0 +1,168 @@
+
+<HTML><HEAD><TITLE>Manpage of AN_GETSOCKNAME</TITLE>
+</HEAD><BODY>
+<H1>AN_GETSOCKNAME</H1>
+Section: Antinat Programmer's Manual (3)<BR>Updated: 2005-01-03<BR><A HREF="#index">Index</A>
+<A HREF="antinat.3.html">Return to Main Contents</A><HR>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+<P>
+
+an_getsockname - fetch the public address the local client
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<P>
+
+<B>#include &lt;antinat.h&gt;</B>
+
+<P>
+<B>int an_getsockname(ANCONN </B><I>s</I><B>, struct sockaddr *</B><I>address</I><B>, int length</B><I>);</I>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+The
+<B><A HREF="an_getsockname.3.html">an_getsockname</A></B>(3)
+
+function is used retrieve the public address of the local client.  Be
+careful when using this function; proxy-aware applications have an additional
+set of considerations over BSD-socket applications.  Firstly, in order to
+have an address, the socket must be connected to a remote host (via 
+<B><A HREF="an_connect_tohostname.3.html">an_connect_tohostname</A></B>(3)
+
+or
+<B><A HREF="an_connect_tosockaddr.3.html">an_connect_tosockaddr</A></B>(3)
+
+) or be bound to accept incoming connections with
+<B><A HREF="an_bind_tohostname.3.html">an_bind_tohostname</A></B>(3)
+
+or
+<B><A HREF="an_bind_tosockaddr.3.html">an_bind_tosockaddr</A></B>(3).
+
+Depending on the proxy protocol, a local address may not be available.
+On the basis that wrong information is worse than none, in these cases the
+function will fail.  A bound socket should have an available address on
+SOCKS4 or SOCKS5; a connected socket may only have an available address
+on SOCKS5 (or SOCKS4, if your server is Antinat.)  Given that you cannot
+control the proxy where your application may run, do not make assumptions
+about whether one will be available.
+<P>
+
+<I>s</I>
+
+is a socket previously created with
+<B><A HREF="an_new_connection.3.html">an_new_connection</A></B>(3)
+
+call, placed in the bound or connected state with one of
+<B><A HREF="an_bind_tohostname.3.html">an_bind_tohostname</A></B>(3),
+
+<B><A HREF="an_bind_tosockaddr.3.html">an_bind_tosockaddr</A></B>(3),
+
+<B><A HREF="an_connect_tohostname.3.html">an_connect_tohostname</A></B>(3)
+
+or
+<B><A HREF="an_connect_tosockaddr.3.html">an_connect_tosockaddr</A></B>(3).
+
+<P>
+
+<I>address</I>
+
+is a sockaddr structure, which will be filled with address family, address,
+and port that the local server is using for the connection. This can also be a
+typecast sockaddr_in6 structure, if Antinat has been compiled with IPv6 support.
+<P>
+
+<I>length</I>
+
+is the length of the sockaddr structure, as determined by sizeof.
+<A NAME="lbAE">&nbsp;</A>
+<H2>NOTES</H2>
+
+<P>
+
+Do not call this function without firstly having a connected or bound
+socket; and do not assume that an address will be available on different
+types of proxy.
+<A NAME="lbAF">&nbsp;</A>
+<H2>RETURN VALUE</H2>
+
+<P>
+
+This call returns
+<B>AN_ERROR_SUCCESS</B>
+
+to indicate successful completion.
+<A NAME="lbAG">&nbsp;</A>
+<H2>ERRORS</H2>
+
+<DL COMPACT>
+<DT><B>AN_ERROR_INVALIDARG</B>
+
+<DD>
+The socket handle or sockaddr structure is invalid; or structures of this
+length are not supported by the library.
+<DT><B>AN_ERROR_NETWORK</B>
+
+<DD>
+The information is not available with this network configuration.
+<DT><B>AN_ERROR_NOMEM</B>
+
+<DD>
+The socket information required more space than the length parameter
+indicated the address parameter has.
+<DT><B>AN_ERROR_NOTSUPPORTED</B>
+
+<DD>
+This call cannot be made on the type of socket, such as the proxy type
+does not support the retrieval of this type of information.
+<DT><B>AN_ERROR_ORDER</B>
+
+<DD>
+This call must be called after a connection or an bind operation.
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<P>
+
+<B><A HREF="an_bind_tohostname.3.html">an_bind_tohostname</A></B>(3),
+
+<B><A HREF="an_bind_tosockaddr.3.html">an_bind_tosockaddr</A></B>(3),
+
+<B><A HREF="an_connect_tohostname.3.html">an_connect_tohostname</A></B>(3),
+
+<B><A HREF="an_connect_tosockaddr.3.html">an_connect_tosockaddr</A></B>(3),
+
+<B><A HREF="an_getpeername.3.html">an_getpeername</A></B>(3),
+
+<B><A HREF="an_new_connection.3.html">an_new_connection</A></B>(3)
+
+<A NAME="lbAI">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<P>
+
+Malcolm Smith &lt;<A HREF="mailto:malxau@users.sourceforge.net">malxau@users.sourceforge.net</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">NOTES</A><DD>
+<DT><A HREF="#lbAF">RETURN VALUE</A><DD>
+<DT><A HREF="#lbAG">ERRORS</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+<DT><A HREF="#lbAI">AUTHOR</A><DD>
+</DL>
+<HR>
+Time: 14:19:44 GMT, January 09, 2005
+</BODY>
+</HTML>

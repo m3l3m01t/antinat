@@ -1,0 +1,162 @@
+
+<HTML><HEAD><TITLE>Manpage of AN_SET_PROXY</TITLE>
+</HEAD><BODY>
+<H1>AN_SET_PROXY</H1>
+Section: Antinat Programmer's Manual (3)<BR>Updated: 2005-01-03<BR><A HREF="#index">Index</A>
+<A HREF="antinat.3.html">Return to Main Contents</A><HR>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+<P>
+
+an_set_proxy - set the location and type of the proxy server
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<P>
+
+<B>#include &lt;antinat.h&gt;</B>
+
+<P>
+<B>int an_set_proxy(ANCONN </B><I>s</I><B>, unsigned short </B><I>proxy_type</I><B>, unsigned short </B><I>packet_family</I><B>, const char * </B><I>proxy_hostname</I><B>, unsigned short </B><I>proxy_port</I><B>);</B>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+The
+<B><A HREF="an_set_proxy.3.html">an_set_proxy</A></B>(3)
+
+function is used to specify the proxy server to use and other characteristics
+associated with the socket.  This function allows fine-grained control of
+how a proxy can be configured; a simpler interface is available in the form
+of
+<B><A HREF="an_set_proxy_url.3.html">an_set_proxy_url</A></B>(3).
+
+This function can only be used to define a connection to a proxy server.  If
+you want the socket to connect directly, without a proxy server, use the
+<B><A HREF="an_unset_proxy.3.html">an_unset_proxy</A></B>(3)
+
+function.  The default values are determined by the
+<I>AN_PROXY</I>
+
+environment variable.
+<P>
+
+<I>s</I>
+
+is a socket previously created with
+<B><A HREF="an_new_connection.3.html">an_new_connection</A></B>(3).
+
+<P>
+
+<I>proxy_type</I>
+
+is the type of proxy to use.  Currently, the library supports the following
+values:
+<B>AN_SERV_SOCKS4</B>,
+
+<B>AN_SERV_SOCKS5</B>
+
+and
+<B>AN_SERV_HTTPS</B>.
+
+<B>AN_SERV_SSL</B>
+
+is retained for compatibility and is the same as
+<B>AN_SERV_HTTPS</B>.
+
+<P>
+
+<I>packet_family</I>
+
+is the packet family to use for connections to the proxy.  This can be
+<B>AN_PF_INET</B>
+
+for an IP-based connection, or
+<B>AN_PF_INET6</B>
+
+for an IPv6 based connection, if Antinat has been compiled with IPv6 support.
+<P>
+
+<I>proxy_hostname</I>
+
+is the hostname, in NULL-terminated character format, that should be used to
+connect to.  This parameter cannot be NULL.  There is no mechanism to specify
+the location of the proxy server in sockaddr structures; all future
+applications should use hostnames in preference for increased flexibility.
+<P>
+
+<I>port</I>
+
+is the port number, in host byte order format, of the proxy server.  Most
+SOCKS servers use port 1080.  HTTPS servers often use a variety of ports,
+including 8080.
+<A NAME="lbAE">&nbsp;</A>
+<H2>RETURN VALUE</H2>
+
+<P>
+
+This call returns
+<B>AN_ERROR_SUCCESS</B>
+
+to indicate successful completion.
+<A NAME="lbAF">&nbsp;</A>
+<H2>ERRORS</H2>
+
+<DL COMPACT>
+<DT><B>AN_ERROR_INVALIDARG</B>
+
+<DD>
+The socket handle is invalid, or the hostname is invalid.
+<DT><B>AN_ERROR_NOMEM</B>
+
+<DD>
+There was not enough memory remaining to allocate space to store the
+proxy hostname.
+<DT><B>AN_ERROR_NOTSUPPORTED</B>
+
+<DD>
+An attempt was made to specify a proxy server type not supported by this
+library.  Note that this function cannot be used to establish direct
+connections; use the
+<B><A HREF="an_unset_proxy.3.html">an_unset_proxy</A></B>(3)
+
+function instead.
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<P>
+
+<B><A HREF="an_new_connection.3.html">an_new_connection</A></B>(3),
+
+<B><A HREF="an_set_proxy_url.3.html">an_set_proxy_url</A></B>(3),
+
+<B><A HREF="an_unset_proxy.3.html">an_unset_proxy</A></B>(3)
+
+<A NAME="lbAH">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<P>
+
+Malcolm Smith &lt;<A HREF="mailto:malxau@users.sourceforge.net">malxau@users.sourceforge.net</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">RETURN VALUE</A><DD>
+<DT><A HREF="#lbAF">ERRORS</A><DD>
+<DT><A HREF="#lbAG">SEE ALSO</A><DD>
+<DT><A HREF="#lbAH">AUTHOR</A><DD>
+</DL>
+<HR>
+Time: 14:19:44 GMT, January 09, 2005
+</BODY>
+</HTML>

@@ -1,0 +1,61 @@
+.TH AN_RECV 3 2005-01-03 "Antinat" "Antinat Programmer's Manual"
+.SH NAME
+.PP
+an_recv - receive incoming data from a proxy-capable socket
+.SH SYNOPSIS
+.PP
+.B #include <antinat.h>
+.sp
+.BI "int an_recv(ANCONN " s ", void * " buf ", int " length ", int " flags ");"
+.SH DESCRIPTION
+.PP
+The
+.BR an_recv (3)
+function is used to fetch incoming data from a proxy-capable socket.  The
+socket must be in the accepted or connected state.  If the socket is in
+blocking mode, the
+.BR an_recv (3)
+function will block until some data is successfully read from the socket.
+In non-blocking mode, if no data is available, the return value will be
+-1, and errno set to EAGAIN.  To send data back to the originator of this
+data, use
+.BR an_send (3).
+.PP
+.I s
+is a socket previously created with
+.BR an_new_connection (3),
+and accepted or connected with
+.BR an_accept (3),
+.BR an_connect_tohostname (3)
+or
+.BR an_connect_tosockaddr (3).
+.PP
+.I buf
+is a destination buffer to place the data in.  It must contain at least as
+many bytes as specified in length, below.
+.PP
+.I length
+is the length of the user-supplied buffer, buf.
+.PP
+.I flags
+are flags, reserved for future use.  Currently, there are no flags
+guaranteed to be supported across versions of this library.  This parameter
+must be zero.
+.SH RETURN VALUE
+.PP
+The return value is the number of bytes read into buf, or -1 if an error
+occurs.
+.SH ERRORS
+.PP
+If an error occurs, the return value will be -1.  errno will be set to
+provide more information about the cause of the error.
+.SH "SEE ALSO"
+.PP
+.BR an_accept (3),
+.BR an_connect_tohostname (3),
+.BR an_connect_tosockaddr (3),
+.BR an_new_connection (3),
+.BR an_send (3)
+.SH AUTHOR
+.PP
+Malcolm Smith <malxau@users.sourceforge.net>

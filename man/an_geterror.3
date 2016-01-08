@@ -1,0 +1,29 @@
+.TH AN_GETERROR 3 2005-01-02 "Antinat" "Antinat Programmer's Manual"
+.SH NAME
+.PP
+an_geterror - return Antinat's error code in string form
+.SH SYNOPSIS
+.PP
+.B #include <antinat.h>
+.sp
+.BI "char * an_geterror(int " error ");"
+.SH DESCRIPTION
+.PP
+The
+.BR an_geterror (3)
+function is used to retrieve a human readable explanation of the error.
+The exact strings contained here are liable to change and could be
+potentially lengthy.
+.PP
+.I error
+is an error code returned by a call to another Antinat function.
+.SH RETURN VALUE
+.PP
+This call returns a pointer to a read-only string containing the error
+message, or NULL if the error code is invalid.
+.SH ERRORS
+.PP
+The return value will be NULL if an error occurs.
+.SH AUTHOR
+.PP
+Malcolm Smith <malxau@users.sourceforge.net>

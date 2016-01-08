@@ -1,0 +1,128 @@
+
+<HTML><HEAD><TITLE>Manpage of AN_FD_SET</TITLE>
+</HEAD><BODY>
+<H1>AN_FD_SET</H1>
+Section: Antinat Programmer's Manual (3)<BR>Updated: 2005-01-02<BR><A HREF="#index">Index</A>
+<A HREF="antinat.3.html">Return to Main Contents</A><HR>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+<P>
+
+AN_FD_SET - place an Antinat connection handle into a socket set.
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<P>
+
+<B>#include &lt;antinat.h&gt;</B>
+
+<P>
+<B>int AN_FD_SET(ANCONN </B><I>s</I><B>, struct fd_set * </B><I>fds</I><B>, int </B><I>top</I><B>);</B>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+The
+<B><A HREF="AN_FD_SET.3.html">AN_FD_SET</A></B>(3)
+
+function inserts an Antinat socket into a set of file descriptors.  This
+set of file descriptors can be used with
+<B>select</B>.
+
+Use the
+<B><A HREF="AN_FD_ISSET.3.html">AN_FD_ISSET</A></B>(3)
+
+function to determine if a file descriptor is in the set, or
+<B><A HREF="AN_FD_CLR.3.html">AN_FD_CLR</A></B>(3)
+
+to remove the file descriptor from the set.
+This function should be considered equivalent to the
+<B><A HREF="FD_SET.3.html">FD_SET</A></B>(3)
+
+macro in your sockets library, except that it is for use with
+proxy-capable sockets, and supports an extension for determining the
+highest numbered file descriptor.
+<P>
+
+<I>s</I>
+
+is a socket previously created with
+<B><A HREF="an_new_connection.3.html">an_new_connection</A></B>(3).
+
+<P>
+
+<I>fds</I>
+
+is an fd_set socket structure.  Consult your platform's documentation for
+the
+<B>select</B>
+
+function for more information about this structure.  It will
+contain a list of file descriptors suitable for use with the
+<B>select</B>
+
+call.
+<P>
+
+<I>top</I>
+
+is the previous highest numbered file descriptor.  Select requires the highest
+numbered file descriptor in a set.  The highest numbered file descriptor will
+be returned, and this may be larger than the top value if required to
+accommodate the freshly inserted file descriptor.
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>RETURN VALUE</H2>
+
+<P>
+
+The return value is the highest numbered file descriptor in the set.  This
+value is required by
+<B>select</B>.
+
+<A NAME="lbAF">&nbsp;</A>
+<H2>ERRORS</H2>
+
+<P>
+
+There is no error return.
+<A NAME="lbAG">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<P>
+
+<B>select</B>,
+
+<B><A HREF="AN_FD_CLR.3.html">AN_FD_CLR</A></B>(3),
+
+<B><A HREF="AN_FD_ISSET.3.html">AN_FD_ISSET</A></B>(3),
+
+<B><A HREF="an_new_connection.3.html">an_new_connection</A></B>(3)
+
+<A NAME="lbAH">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<P>
+
+Malcolm Smith &lt;<A HREF="mailto:malxau@users.sourceforge.net">malxau@users.sourceforge.net</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">RETURN VALUE</A><DD>
+<DT><A HREF="#lbAF">ERRORS</A><DD>
+<DT><A HREF="#lbAG">SEE ALSO</A><DD>
+<DT><A HREF="#lbAH">AUTHOR</A><DD>
+</DL>
+<HR>
+Time: 14:19:44 GMT, January 09, 2005
+</BODY>
+</HTML>

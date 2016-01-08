@@ -1,0 +1,127 @@
+
+<HTML><HEAD><TITLE>Manpage of AN_RECV</TITLE>
+</HEAD><BODY>
+<H1>AN_RECV</H1>
+Section: Antinat Programmer's Manual (3)<BR>Updated: 2005-01-03<BR><A HREF="#index">Index</A>
+<A HREF="antinat.3.html">Return to Main Contents</A><HR>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+<P>
+
+an_recv - receive incoming data from a proxy-capable socket
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<P>
+
+<B>#include &lt;antinat.h&gt;</B>
+
+<P>
+<B>int an_recv(ANCONN </B><I>s</I><B>, void * </B><I>buf</I><B>, int </B><I>length</I><B>, int </B><I>flags</I><B>);</B>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+The
+<B><A HREF="an_recv.3.html">an_recv</A></B>(3)
+
+function is used to fetch incoming data from a proxy-capable socket.  The
+socket must be in the accepted or connected state.  If the socket is in
+blocking mode, the
+<B><A HREF="an_recv.3.html">an_recv</A></B>(3)
+
+function will block until some data is successfully read from the socket.
+In non-blocking mode, if no data is available, the return value will be
+-1, and errno set to EAGAIN.  To send data back to the originator of this
+data, use
+<B><A HREF="an_send.3.html">an_send</A></B>(3).
+
+<P>
+
+<I>s</I>
+
+is a socket previously created with
+<B><A HREF="an_new_connection.3.html">an_new_connection</A></B>(3),
+
+and accepted or connected with
+<B><A HREF="an_accept.3.html">an_accept</A></B>(3),
+
+<B><A HREF="an_connect_tohostname.3.html">an_connect_tohostname</A></B>(3)
+
+or
+<B><A HREF="an_connect_tosockaddr.3.html">an_connect_tosockaddr</A></B>(3).
+
+<P>
+
+<I>buf</I>
+
+is a destination buffer to place the data in.  It must contain at least as
+many bytes as specified in length, below.
+<P>
+
+<I>length</I>
+
+is the length of the user-supplied buffer, buf.
+<P>
+
+<I>flags</I>
+
+are flags, reserved for future use.  Currently, there are no flags
+guaranteed to be supported across versions of this library.  This parameter
+must be zero.
+<A NAME="lbAE">&nbsp;</A>
+<H2>RETURN VALUE</H2>
+
+<P>
+
+The return value is the number of bytes read into buf, or -1 if an error
+occurs.
+<A NAME="lbAF">&nbsp;</A>
+<H2>ERRORS</H2>
+
+<P>
+
+If an error occurs, the return value will be -1.  errno will be set to
+provide more information about the cause of the error.
+<A NAME="lbAG">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<P>
+
+<B><A HREF="an_accept.3.html">an_accept</A></B>(3),
+
+<B><A HREF="an_connect_tohostname.3.html">an_connect_tohostname</A></B>(3),
+
+<B><A HREF="an_connect_tosockaddr.3.html">an_connect_tosockaddr</A></B>(3),
+
+<B><A HREF="an_new_connection.3.html">an_new_connection</A></B>(3),
+
+<B><A HREF="an_send.3.html">an_send</A></B>(3)
+
+<A NAME="lbAH">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<P>
+
+Malcolm Smith &lt;<A HREF="mailto:malxau@users.sourceforge.net">malxau@users.sourceforge.net</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">RETURN VALUE</A><DD>
+<DT><A HREF="#lbAF">ERRORS</A><DD>
+<DT><A HREF="#lbAG">SEE ALSO</A><DD>
+<DT><A HREF="#lbAH">AUTHOR</A><DD>
+</DL>
+<HR>
+Time: 14:19:44 GMT, January 09, 2005
+</BODY>
+</HTML>

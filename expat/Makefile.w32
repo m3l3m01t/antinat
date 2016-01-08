@@ -1,0 +1,27 @@
+
+!include <ntwin32.mak>
+!include "../w32bcfg.mak"
+
+
+OBJS=xmltok.obj xmlparse.obj xmlrole.obj
+
+ROOTNAME=expat
+
+TARGET=$(ROOTNAME).lib
+
+all: $(TARGET)
+
+clean:
+	@if exist *.obj erase *.obj
+	@if exist $(ROOTNAME).lib erase *.lib
+	@if exist *.aps erase *.aps
+	@if exist *.pch erase *.pch
+	@if exist *.pdb erase *.pdb
+
+
+$(ROOTNAME).lib: $(OBJS)
+	@$(implib) $(ILFLAGS) $(OBJS) -out:$(ROOTNAME).lib
+
+.c.obj:
+	@$(CC) $(CFLAGS) /I. /DCOMPILED_FROM_DSP /D_WINDOWS /DWIN32 /c $<
+

@@ -1,0 +1,58 @@
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+bindir=@bindir@
+libdir=@libdir@
+sbindir=@sbindir@
+AN_VER=@AN_VER@
+datadir=@datadir@
+mandir=@mandir@
+localstatedir=@localstatedir@
+sysconfdir=@sysconfdir@
+INSTALL=@INSTALL@
+LIBTOOL=@LIBTOOL@
+CFLAGS=@CFLAGS@ `../client/antinat-config --cflags` -I../client
+SHELL=@SHELL@
+top_builddir=@top_builddir@
+EXEEXT=@EXEEXT@
+TARGET=antinat$(EXEEXT)
+SERV_OBJS=addrinfo.lo auth.lo config.lo conn.lo libds.lo loggers.lo main.lo socks4.lo socks5.lo
+LDFLAGS=@LDFLAGS@ -L../client `../client/antinat-config --libs` -lexpat
+SLDFLAGS=@SLDFLAGS@
+
+CC=@CC@
+MINGW32=@MINGW32@
+
+ifeq ($(MINGW32),yes)
+CFLAGS += -D_WIN32_
+LDFLAGS += -lwsock32
+SERV_OBJS += resource.o os_win.lo
+else
+LDFLAGS += -lpthread
+SERV_OBJS += os_unix.lo
+endif
+
+all: $(TARGET)
+
+clean:
+	$(LIBTOOL) --mode=clean rm -f $(SERV_OBJS) $(TARGET)
+
+distclean: clean
+	rm -f Makefile
+
+install: $(TARGET)
+	$(INSTALL) -d "$(bindir)"
+	$(LIBTOOL) --mode=install $(INSTALL) -m 0755 $(TARGET) $(bindir)/$(TARGET)
+	$(LIBTOOL) --mode=finish $(bindir)
+	
+
+$(TARGET): $(SERV_OBJS) 
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $@ $(SERV_OBJS) $(LDFLAGS) $(SLDFLAGS)
+
+%.lo: %.c ../config.h an_serv.h
+	$(LIBTOOL) --mode=compile $(CC) $(CFLAGS) -DAN_VER=\"$(AN_VER)\" -Dsysconfdir=\"$(sysconfdir)\" -c $< -o $@ 
+
+%.o: %.rc
+	windres $< $@ 
+
+

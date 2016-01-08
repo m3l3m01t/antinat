@@ -1,0 +1,52 @@
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+bindir=@bindir@
+libdir=@libdir@
+includedir=@includedir@
+AN_VER=@AN_VER@
+INSTALL=@INSTALL@
+CFLAGS=@CFLAGS@
+SHELL=@SHELL@
+top_builddir=@top_builddir@
+TARGET=libantinat.la
+TARGET_OBJS=an_core.lo an_proxy.lo an_socks5.lo an_socks4.lo an_direct.lo \
+	an_ssl.lo iscmd5.lo
+LDFLAGS=@LDFLAGS@
+LIBTOOL=@LIBTOOL@
+
+CC=@CC@
+MINGW32=@MINGW32@
+
+ifeq ($(MINGW32),yes)
+CFLAGS += -D_WIN32_
+LDFLAGS += -lwsock32
+endif
+
+all: $(TARGET)
+	chmod 755 antinat-config
+
+clean:
+	$(LIBTOOL) --mode=clean rm -f $(TARGET_OBJS)
+	$(LIBTOOL) --mode=clean rm -f $(TARGET)
+	rm -f *.o
+
+distclean: clean
+	rm -f Makefile antinat-config
+
+install:
+	$(INSTALL) -d "$(libdir)"
+	$(INSTALL) -d "$(bindir)"
+	$(INSTALL) -d "$(includedir)"
+	$(INSTALL) -m 0644 antinat.h "$(includedir)/antinat.h"
+	$(INSTALL) -m 0755 antinat-config "$(bindir)/antinat-config"
+
+	$(LIBTOOL) --mode=install $(INSTALL) -m 0755 "$(TARGET)" "$(libdir)/$(TARGET)"
+	$(LIBTOOL) --mode=finish "$(libdir)"
+
+$(TARGET): $(TARGET_OBJS) 
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) $(TARGET_OBJS) $(LDFLAGS) -version-info 0 -rpath $(libdir) -o $@
+
+%.lo: %.c ../config.h
+	$(LIBTOOL) --mode=compile $(CC) $(CFLAGS) -I. -c $< -o $@ 
+

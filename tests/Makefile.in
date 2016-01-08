@@ -1,0 +1,52 @@
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+bindir=@bindir@
+libdir=@libdir@
+sbindir=@sbindir@
+AN_VER=@AN_VER@
+datadir=@datadir@
+mandir=@mandir@
+sysconfdir=@sysconfdir@
+INSTALL=@INSTALL@
+CFLAGS=@CFLAGS@
+SHELL=@SHELL@
+top_builddir=@top_builddir@
+EXEEXT=@EXEEXT@
+TARGET=an-tests$(EXEEXT)
+SERV_OBJS=an-tests.lo
+LDFLAGS=@LDFLAGS@ -L../client -lantinat
+LIBTOOL=@LIBTOOL@
+
+CC=@CC@
+MINGW32=@MINGW32@
+
+ifeq ($(MINGW32),yes)
+CXXFLAGS += -D_WIN32_
+CFLAGS += -D_WIN32_
+LDFLAGS += -lwsock32
+else
+LDFLAGS += -lpthread
+endif
+
+all: $(TARGET)
+
+clean:
+	$(LIBTOOL) --mode=clean rm -f $(SERV_OBJS) $(TARGET)
+
+distclean: clean
+	rm -f Makefile
+
+install-real:
+	$(LIBTOOL) --mode=install $(INSTALL) -d "$(bindir)"
+	$(LIBTOOL) --mode=install $(INSTALL) -m 0755 $(TARGET) $(bindir)/$(TARGET)
+
+install:
+
+$(TARGET): $(SERV_OBJS) 
+	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) -o $@ $(SERV_OBJS) $(LDFLAGS)
+
+%.lo: %.c ../config.h
+	$(LIBTOOL) --mode=compile $(CC) $(CFLAGS) -Dsysconfdir=\"$(sysconfdir)\" -I../client -c $< -o $@ -static
+
+

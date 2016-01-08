@@ -1,0 +1,147 @@
+
+<HTML><HEAD><TITLE>Manpage of AN_CONNECT_TOSOCKADDR</TITLE>
+</HEAD><BODY>
+<H1>AN_CONNECT_TOSOCKADDR</H1>
+Section: Antinat Programmer's Manual (3)<BR>Updated: 2005-01-02<BR><A HREF="#index">Index</A>
+<A HREF="antinat.3.html">Return to Main Contents</A><HR>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+<P>
+
+an_connect_tosockaddr - connect to an outgoing address
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<P>
+
+<B>#include &lt;antinat.h&gt;</B>
+
+<P>
+<B>int an_connect_tosockaddr(ANCONN </B><I>s</I><B>, struct sockaddr *</B><I>address</I><B>, int length</B><I>);</I>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+
+The
+<B><A HREF="an_connect_tosockaddr.3.html">an_connect_tosockaddr</A></B>(3)
+
+function is used to connect to the specified address at the specified port.
+<B><A HREF="an_connect_tohostname.3.html">an_connect_tohostname</A></B>(3)
+
+should be used in preference to this function, because it allows name
+resolution to be deferred to the proxy where possible.
+<P>
+
+<I>s</I>
+
+is a socket previously created with
+<B><A HREF="an_new_connection.3.html">an_new_connection</A></B>(3)
+
+call.
+<P>
+
+<I>address</I>
+
+is a filled out sockaddr structure, containing an address family, address,
+and port that a connection should be made to.  This can also be a typecast
+sockaddr_in6 structure, if Antinat has been compiled with IPv6 support.
+<P>
+
+<I>length</I>
+
+is the length of the sockaddr structure, as determined by sizeof.
+<A NAME="lbAE">&nbsp;</A>
+<H2>NOTES</H2>
+
+<P>
+
+Although there is planned support for non-blocking sockets in a future release,
+this call should be considered a blocking call.  A non-blocking socket will be
+silently (and temporarily) changed to a blocking one to process the
+connection.
+<A NAME="lbAF">&nbsp;</A>
+<H2>RETURN VALUE</H2>
+
+<P>
+
+This call returns
+<B>AN_ERROR_SUCCESS</B>
+
+to indicate successful completion.
+<A NAME="lbAG">&nbsp;</A>
+<H2>ERRORS</H2>
+
+<DL COMPACT>
+<DT><B>AN_ERROR_AUTH</B>
+
+<DD>
+The proxy would not accept the authentication credentials that were
+supplied to it.
+<DT><B>AN_ERROR_INVALIDARG</B>
+
+<DD>
+The socket handle or sockaddr structure is invalid; or structures of this
+length are not supported by the library.
+<DT><B>AN_ERROR_NAMERESOLVE</B>
+
+<DD>
+Could not resolve proxy hostname.
+<DT><B>AN_ERROR_NOTSUPPORTED</B>
+
+<DD>
+This call cannot be made on the type of socket, such as the authentication
+scheme required is not supported by this type of proxy, or the address type
+is not supported by this type of proxy.
+<DT><B>AN_ERROR_ORDER</B>
+
+<DD>
+This call must be called without a currently open connection, binding,
+listening, or accepting call.
+<DT><B>AN_ERROR_NETWORK</B>
+
+<DD>
+Could not read information from the network; a network error occurred.
+<DT><B>AN_ERROR_PROXY</B>
+
+<DD>
+The proxy failed to successfully process the connection.
+</DL>
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<P>
+
+<B><A HREF="an_close.3.html">an_close</A></B>(3),
+
+<B><A HREF="an_connect_tohostname.3.html">an_connect_tohostname</A></B>(3)
+
+<B><A HREF="an_new_connection.3.html">an_new_connection</A></B>(3)
+
+<A NAME="lbAI">&nbsp;</A>
+<H2>AUTHOR</H2>
+
+<P>
+
+Malcolm Smith &lt;<A HREF="mailto:malxau@users.sourceforge.net">malxau@users.sourceforge.net</A>&gt;
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">NOTES</A><DD>
+<DT><A HREF="#lbAF">RETURN VALUE</A><DD>
+<DT><A HREF="#lbAG">ERRORS</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+<DT><A HREF="#lbAI">AUTHOR</A><DD>
+</DL>
+<HR>
+Time: 14:19:43 GMT, January 09, 2005
+</BODY>
+</HTML>

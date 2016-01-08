@@ -1,0 +1,79 @@
+.TH AN_CONNECT_TOHOSTNAME 3 2005-01-02 "Antinat" "Antinat Programmer's Manual"
+.SH NAME
+.PP
+an_connect_tohostname - connect to an outgoing address
+.SH SYNOPSIS
+.PP
+.B #include <antinat.h>
+.sp
+.BI "int an_connect_tohostname(ANCONN " s ", const char *" hostname ", unsigned short " port ");"
+.SH DESCRIPTION
+.PP
+The
+.BR an_connect_tohostname (3)
+function is used to connect to the specified hostname at the specified port.
+This call should be used in preference to
+.BR an_connect_tosockaddr (3)
+because it allows name resolution to be deferred to the proxy where possible.
+.PP
+.I s
+is a socket previously created with
+.BR an_new_connection (3)
+call.
+.PP
+.I hostname
+is a hostname that a connection will be initiated to.
+.PP
+.I port
+is the port that a connection will be initiated to.  This can be specified in
+host byte-order.
+.SH NOTES
+.PP
+Although there is planned support for non-blocking sockets in a future release,
+this call should be considered a blocking call.  A non-blocking socket will be
+silently (and temporarily) changed to a blocking one to process the
+connection.
+.SH RETURN VALUE
+.PP
+This call returns
+.B AN_ERROR_SUCCESS
+to indicate successful completion.
+.SH ERRORS
+.TP
+.B AN_ERROR_AUTH
+The proxy would not accept the authentication credentials that were
+supplied to it.
+.TP
+.B AN_ERROR_INVALIDARG
+The socket handle or hostname is invalid.
+.TP
+.B AN_ERROR_NAMERESOLVE
+Could not resolve proxy hostname; for some types of proxy, the remote host
+also needs to be locally resolved, which could also generate this error.
+.TP
+.B AN_ERROR_NOMEM
+Could not allocate memory to translate hostname into address where the client
+will connect directly.
+.TP
+.B AN_ERROR_NOTSUPPORTED
+This call cannot be made on the type of socket, or cannot return socket
+information for this type of connection.
+.TP
+.B AN_ERROR_ORDER
+This call must be called without having performed any operation on the socket
+other than 
+.BR an_new_connection (3).
+.TP
+.B AN_ERROR_NETWORK
+Could not read information from the network; a network error occurred.
+.TP
+.B AN_ERROR_PROXY
+The proxy failed to successfully process the connection.
+.SH "SEE ALSO"
+.PP
+.BR an_close (3),
+.BR an_connect_tosockaddr (3)
+.BR an_new_connection (3)
+.SH AUTHOR
+.PP
+Malcolm Smith <malxau@users.sourceforge.net>

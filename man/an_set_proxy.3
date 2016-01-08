@@ -1,0 +1,85 @@
+.TH AN_SET_PROXY 3 2005-01-03 "Antinat" "Antinat Programmer's Manual"
+.SH NAME
+.PP
+an_set_proxy - set the location and type of the proxy server
+.SH SYNOPSIS
+.PP
+.B #include <antinat.h>
+.sp
+.BI "int an_set_proxy(ANCONN " s ", unsigned short " proxy_type ", unsigned short " packet_family ", const char * " proxy_hostname ", unsigned short " proxy_port ");"
+.SH DESCRIPTION
+.PP
+The
+.BR an_set_proxy (3)
+function is used to specify the proxy server to use and other characteristics
+associated with the socket.  This function allows fine-grained control of
+how a proxy can be configured; a simpler interface is available in the form
+of
+.BR an_set_proxy_url (3).
+This function can only be used to define a connection to a proxy server.  If
+you want the socket to connect directly, without a proxy server, use the
+.BR an_unset_proxy (3)
+function.  The default values are determined by the
+.I AN_PROXY
+environment variable.
+.PP
+.I s
+is a socket previously created with
+.BR an_new_connection (3).
+.PP
+.I proxy_type
+is the type of proxy to use.  Currently, the library supports the following
+values:
+.BR AN_SERV_SOCKS4 ,
+.BR AN_SERV_SOCKS5
+and
+.BR AN_SERV_HTTPS .
+.BR AN_SERV_SSL
+is retained for compatibility and is the same as
+.BR AN_SERV_HTTPS .
+.PP
+.I packet_family
+is the packet family to use for connections to the proxy.  This can be
+.BR AN_PF_INET
+for an IP-based connection, or
+.BR AN_PF_INET6
+for an IPv6 based connection, if Antinat has been compiled with IPv6 support.
+.PP
+.I proxy_hostname
+is the hostname, in NULL-terminated character format, that should be used to
+connect to.  This parameter cannot be NULL.  There is no mechanism to specify
+the location of the proxy server in sockaddr structures; all future
+applications should use hostnames in preference for increased flexibility.
+.PP
+.I port
+is the port number, in host byte order format, of the proxy server.  Most
+SOCKS servers use port 1080.  HTTPS servers often use a variety of ports,
+including 8080.
+.SH RETURN VALUE
+.PP
+This call returns
+.B AN_ERROR_SUCCESS
+to indicate successful completion.
+.SH ERRORS
+.TP
+.B AN_ERROR_INVALIDARG
+The socket handle is invalid, or the hostname is invalid.
+.TP
+.B AN_ERROR_NOMEM
+There was not enough memory remaining to allocate space to store the
+proxy hostname.
+.TP
+.B AN_ERROR_NOTSUPPORTED
+An attempt was made to specify a proxy server type not supported by this
+library.  Note that this function cannot be used to establish direct
+connections; use the
+.BR an_unset_proxy (3)
+function instead.
+.SH "SEE ALSO"
+.PP
+.BR an_new_connection (3),
+.BR an_set_proxy_url (3),
+.BR an_unset_proxy (3)
+.SH AUTHOR
+.PP
+Malcolm Smith <malxau@users.sourceforge.net>

@@ -1,0 +1,42 @@
+.TH AN_CLEAR_AUTHSCHEMES 3 2005-01-02 "Antinat" "Antinat Programmer's Manual"
+.SH NAME
+.PP
+an_clear_authschemes - reset all supported authentication schemes on connection
+.SH SYNOPSIS
+.PP
+.B #include <antinat.h>
+.sp
+.BI "int an_clear_authschemes(ANCONN " s ");"
+.SH DESCRIPTION
+.PP
+The
+.BR an_clear_authschemes (3)
+function is used reset all supported authentication schemes on a connection.
+The default is to accept any supported authentication scheme when connecting
+to a proxy; using this function on a connection before connecting resets this
+to support no authentication schemes unless explicitly supported by calling
+the
+.BR an_set_authscheme (3)
+function.
+.PP
+.I s
+is a socket previously created with
+.BR an_new_connection (3),
+prior to connecting or binding.
+.SH RETURN VALUE
+.PP
+This call returns
+.B AN_ERROR_SUCCESS
+to indicate successful completion.
+.SH ERRORS
+.TP
+.B AN_ERROR_INVALIDARG
+The supplied connection is not a valid connection.
+.SH "SEE ALSO"
+.PP
+.BR an_new_connection (3),
+.BR an_set_authscheme (3),
+.BR an_set_credentials (3)
+.SH AUTHOR
+.PP
+Malcolm Smith <malxau@users.sourceforge.net>

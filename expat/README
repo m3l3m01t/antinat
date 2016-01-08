@@ -1,0 +1,7 @@
+This directory contains the sources taken from Expat 1.95.8.  It is only
+used to streamline MSVC builds on Win32 (no dependencies required anymore.)
+
+At some point, there may be support to use this on *nix as well.
+
+If you want to know more about Expat, go to
+http://www.libexpat.org/

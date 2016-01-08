@@ -1,0 +1,24 @@
+#!/bin/sh
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+while test $# -gt 0; do
+	case $1 in
+		--libs)
+		echo -L$libdir -lantinat @RUNTIMEPATH@
+		;;
+		--cflags)
+		echo -I$includedir
+		;;
+		--version)
+		echo 000003000
+		;;
+	esac
+	shift
+
+done
+
+

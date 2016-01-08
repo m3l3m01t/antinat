@@ -1,0 +1,52 @@
+.TH AN_NEW_CONNECTION 3 2005-01-03 "Antinat" "Antinat Programmer's Manual"
+.SH NAME
+.PP
+an_new_connection - create a socket handle
+.SH SYNOPSIS
+.PP
+.B #include <antinat.h>
+.sp
+.BI "ANCONN an_new_connection();"
+.SH DESCRIPTION
+.PP
+The
+.BR an_new_connection (3)
+function is used to create a new connection handle, performing any allocation
+and initialisation necessary.  Any successfully created connection must be
+cleaned up when it is no longer required with the
+.BR an_destroy (3)
+function.  After the connection handle has been created, it should be
+initialised with whatever proxy settings are required, then connected or
+bound as required.  After the connection has been closed, the connection
+handle can be reused, and will remember all of the proxy setting information
+associated with it.
+.PP
+A freshly created connection handle will be created with default
+proxy information.  By default, the handle will not be associated with
+any proxy server, and will not contain any credentials, and will be a blocking
+connection.  However, if the
+.I AN_PROXY
+environment variable is declared, it can contain a url specifying the proxy
+server that should be used.  In addition, the
+.I AN_USER
+and
+.I AN_PASS
+variables can specify the username and password respectively, if the
+specified proxy server requires authentication.  By default, any available
+authentication scheme can be used.
+.SH RETURN VALUE
+.PP
+This call returns a valid connection handle, or NULL if a connection handle
+could not be created.
+.SH ERRORS
+.PP
+If an error occurs, the return value will be NULL.  This is most likely an
+out of memory condition.
+.SH "SEE ALSO"
+.PP
+.BR an_destroy (3),
+.BR an_set_credentials (3),
+.BR an_set_proxy_url (3)
+.SH AUTHOR
+.PP
+Malcolm Smith <malxau@users.sourceforge.net>

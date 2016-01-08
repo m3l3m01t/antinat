@@ -1,0 +1,45 @@
+.TH AN_DESTROY 3 2005-01-02 "Antinat" "Antinat Programmer's Manual"
+.SH NAME
+.PP
+an_destroy - destroy a socket handle
+.SH SYNOPSIS
+.PP
+.B #include <antinat.h>
+.sp
+.BI "int an_destroy(ANCONN " s ");"
+.SH DESCRIPTION
+.PP
+The
+.BR an_destroy (3)
+function is used fully clean up a connection handle when it has been
+finished with it.  Any open connection should firstly be called with a
+call to
+.BR an_close (3).
+Until
+.BR an_destroy (3)
+is called, the closed handle can be reused for new
+connections; afterwards, all memory associated with the handle is
+discarded, and the handle will not be valid with any later call.
+.PP
+.I s
+is a socket previously created with
+.BR an_new_connection (3).
+.PP
+
+.SH RETURN VALUE
+.PP
+This call returns
+.B AN_ERROR_SUCCESS
+to indicate successful completion.
+.SH ERRORS
+.TP
+.B AN_ERROR_INVALIDARG
+The connection supplied is not a valid connection.
+.TP
+.SH "SEE ALSO"
+.PP
+.BR an_close (3),
+.BR an_new_connection (3)
+.SH AUTHOR
+.PP
+Malcolm Smith <malxau@users.sourceforge.net>

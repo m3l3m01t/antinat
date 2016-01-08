@@ -1,0 +1,134 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(server/main.c) dnl a source file from your sub dir
+
+AC_PREFIX_DEFAULT(/usr/local)
+
+AC_CONFIG_HEADER(config.h) dnl at the distribution this done
+
+AC_ARG_WITH(warnings,
+[  --with-warnings         compile with -pedantic -Wall],
+[if test "$withval" = "yes"; then CFLAGS="$CFLAGS -pedantic -Wall"; fi])
+
+CFLAGS="$CPPFLAGS $CFLAGS"
+
+AC_MINGW32
+AC_SUBST(MINGW32)
+
+
+LIBSOCKET=""
+AC_CHECK_LIB(socket, socket, [LIBSOCKET="-lsocket"]) dnl for Solaris
+LDFLAGS="$LDFLAGS $LIBSOCKET"
+
+LIBNSL=""
+AC_CHECK_LIB(nsl, gethostbyname, [LIBNSL="-lnsl"]) dnl for Solaris
+LDFLAGS="$LDFLAGS $LIBNSL"
+
+LIBEXPAT=""
+AC_CHECK_LIB(expat, XML_ParserCreate, [LIBEXPAT="-lexpat"]) dnl for the server
+SLDFLAGS="$SLDFLAGS $LIBEXPAT"
+
+if test "$LIBEXPAT" = "";
+then
+	AC_MSG_ERROR([This package requires expat.  It is tested against 1.95.5 or greater, although will possibly work with relatively old versions. This can be obtained from http://sourceforge.net/projects/expat/])
+fi
+
+LIBCRYPT=""
+AC_CHECK_LIB(crypt, crypt, 
+AC_DEFINE(HAVE_CRYPT_CRYPT,1,[Have crypt in -lcrypt])
+[LIBCRYPT="-lcrypt"]) dnl for Linux
+SLDFLAGS="$SLDFLAGS $LIBCRYPT"
+
+LIBPTHREAD=""
+AC_CHECK_LIB(pthreads, pthread_create, [LIBPTHREAD="-lpthreads"])
+AC_CHECK_LIB(pthread, pthread_create, [LIBPTHREAD="-lpthread"])
+SLDFLAGS="$SLDFLAGS $LIBPTHREAD"
+
+AC_CHECK_LIB(crypt, crypt_r, AC_DEFINE(HAVE_CRYPT_CRYPT_R,1,[Have crypt_r in -lcrypt])) dnl This might not be in libc
+AC_CHECK_LIB(nsl,gethostbyname_r, AC_DEFINE(HAVE_NSL_GETHOSTBYNAME_R,1,[Have gethostbyname_r in -lnsl])) dnl for Solaris
+
+AC_PROG_INSTALL
+AC_PROG_LIBTOOL
+AC_HEADER_STDC
+AC_CHECK_HEADERS( arpa/inet.h crypt.h errno.h expat.h fcntl.h netdb.h netinet/in.h pthread.h pwd.h shadow.h signal.h stdio.h stdlib.h sys/select.h sys/socket.h sys/time.h sys/types.h sys/wait.h time.h unistd.h winsock.h )
+AC_CHECK_FUNCS( crypt crypt_r gethostbyname_r getspnam getspnam_r getpwnam getpwnam_r localtime_r pthread_attr_setstacksize pthread_attr_setscope setsid )
+
+AC_MSG_CHECKING([for broken getspnam_r])
+AC_TRY_LINK([#include <shadow.h>], 
+[struct spwd realpwd;
+ char buf[1024];
+ getspnam_r("root",&realpwd,buf,sizeof(buf));],
+ AC_DEFINE(BROKEN_GETSPNAM,1,[System uses broken Solaris-style getspnam_r])
+ AC_MSG_RESULT([Solaris]),
+ AC_MSG_RESULT([Linux]))
+
+AC_MSG_CHECKING([for broken getpwnam_r])
+AC_TRY_LINK([#include <pwd.h>], 
+[struct passwd realpwd;
+ char buf[1024];
+ getpwnam_r("root",&realpwd,buf,sizeof(buf));],
+ AC_DEFINE(BROKEN_GETPWNAM,1,[System uses broken Solaris-style getpwnam_r])
+ AC_MSG_RESULT([Solaris]),
+ AC_MSG_RESULT([Linux]))
+
+AC_MSG_CHECKING([for broken gethostbyname_r])
+AC_TRY_LINK([#include <netdb.h>], 
+[struct hostent realhe;
+ char buf[1024];
+ int myerrno;
+ gethostbyname_r("localhost",&realhe,buf,sizeof(buf),&myerrno);],
+ AC_DEFINE(BROKEN_GETHOSTBYNAME,1,[System uses broken Solaris-style gethostbyname_r])
+ AC_MSG_RESULT([Solaris]),
+ AC_MSG_RESULT([Linux]))
+
+AC_MSG_CHECKING([for broken crypt_r])
+AC_TRY_COMPILE([
+#define _GNU_SOURCE
+#include <crypt.h>], 
+[struct crypt_data cd;
+ crypt_r("Password","ab",&cd);],
+ AC_MSG_RESULT([Safe]),
+ AC_DEFINE(BROKEN_CRYPT_R,1,[System crypt_r is busted])
+ AC_MSG_RESULT([Broken]))
+
+TEMPVAR="$CFLAGS"
+RUNTIMEPATH="-Wl,-R\$libdir"
+CFLAGS="$CFLAGS -Wl,-R/tmp"
+AC_MSG_CHECKING([for -Wl,-R])
+AC_TRY_LINK([#include <stdio.h>],
+[return 0;],
+AC_MSG_RESULT([Yes]),
+RUNTIMEPATH=""
+AC_MSG_RESULT([No]))
+AC_SUBST(RUNTIMEPATH)
+CFLAGS="$TEMPVAR"
+
+
+
+AC_ARG_WITH(feedback,
+[  --with-feedback         display extra information for debugging],
+[if test "$withval" = "yes"; then AC_DEFINE(WITH_DEBUG,1,[Define if debugging build]) fi])
+
+AN_VER=0.90
+AC_SUBST(AN_VER)
+
+WITH_IPV6=no
+
+AC_ARG_WITH(ipv6,
+[  --without-ipv6          do not attempt to compile IPv6 into this server],
+[if test "$withval" = "yes"; then WITH_IPV6="yes"; fi])
+
+AC_SUBST(WITH_IPV6)
+if test "$WITH_IPV6" = "yes";
+then
+	AC_DEFINE([WITH_IPV6], 1, [Define if this build should support IPv6])
+fi
+
+
+AC_SOCKLEN
+AC_DEFINE([sl_t], 1, [Define the appropriate socklen_t for this system])
+
+LOGDIR="$localstatedir/log/antinat-$AN_VER"
+AC_SUBST(LOGDIR)
+AC_SUBST(SLDFLAGS)
+
+AC_OUTPUT(Makefile client/Makefile etc/Makefile man/Makefile server/Makefile tests/Makefile client/antinat-config)
