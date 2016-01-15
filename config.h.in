@@ -150,6 +150,9 @@
 /* Define to the one symbol short name of this package. */
 #undef PACKAGE_TARNAME
 
+/* Define to the home page for this package. */
+#undef PACKAGE_URL
+
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
@@ -161,6 +164,9 @@
 
 /* Define if this build should support IPv6 */
 #undef WITH_IPV6
+
+/* Define if with memcached */
+#define WITH_MEMCACHED 1
 
 /* Define the appropriate socklen_t for this system */
 #undef sl_t

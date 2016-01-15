@@ -46,6 +46,12 @@ SLDFLAGS="$SLDFLAGS $LIBPTHREAD"
 AC_CHECK_LIB(crypt, crypt_r, AC_DEFINE(HAVE_CRYPT_CRYPT_R,1,[Have crypt_r in -lcrypt])) dnl This might not be in libc
 AC_CHECK_LIB(nsl,gethostbyname_r, AC_DEFINE(HAVE_NSL_GETHOSTBYNAME_R,1,[Have gethostbyname_r in -lnsl])) dnl for Solaris
 
+dnl LIBMEMCACHED=""
+dnl AC_CHECK_LIB(libmemcached, memcached,
+dnl AC_DEFINE(HAVE_LIBCACHED, 1, [Have libmemcached])
+dnl [LIBMEMCACHED="-lmemcached -lmemcachedutil"])
+dnl SLDFLAGS="$SLDFLAGS $LIBMEMCACHED"
+
 AC_PROG_INSTALL
 AC_PROG_LIBTOOL
 AC_HEADER_STDC
@@ -102,7 +108,14 @@ AC_MSG_RESULT([No]))
 AC_SUBST(RUNTIMEPATH)
 CFLAGS="$TEMPVAR"
 
+AC_ARG_WITH(memcached,
+[  --with-memcached          enable memcache support ],
+[ if test "$withval" = "yes"; then AC_DEFINE(WITH_MEMCACHED, 1, [Define if with memcached]) fi])
 
+if test "$WITH_MEMCACHED" = "yes"; then
+	LIBMEMCACHED="-lmemcached -lmemcachedutil"
+fi
+SLDFLAGS="$SLDFLAGS $LIBMEMCACHED"
 
 AC_ARG_WITH(feedback,
 [  --with-feedback         display extra information for debugging],

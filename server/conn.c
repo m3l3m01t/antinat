@@ -24,6 +24,9 @@
 #ifdef HAVE_ERRNO_H
 #include <errno.h>
 #endif
+#ifdef WITH_MEMCACHED
+#include <libmemcached/memcached.h>
+#endif
 
 #include <antinat.h>
 
@@ -47,6 +50,10 @@ conn_init_tcp (conn_t * conn, config_t * theconf, SOCKET thiss)
 	conn->version = 0;
 	conn->authscheme = 0;
 	conn->authsrc = 0;
+
+#ifdef WITH_MEMCACHED
+	conn->memc = NULL;
+#endif
 
 	ai_init (&conn->source, NULL);
 	ai_init (&conn->dest, NULL);
@@ -76,6 +83,10 @@ conn_init_udp (conn_t * conn, config_t * theconf, SOCKADDR * sa,
 	conn->version = 0;
 	conn->authscheme = 0;
 	conn->authsrc = 0;
+
+#ifdef WITH_MEMCACHED
+	conn->memc = NULL;
+#endif
 
 	ai_init (&conn->source, NULL);
 	ai_init (&conn->dest, NULL);
@@ -652,6 +663,103 @@ conn_setupchain (conn_t * conn, ANCONN remote, chain_t * chain)
 	}
 	return TRUE;
 }
+
+#ifdef WITH_MEMCACHED
+
+const char *memcached_opt = "--SERVER=127.0.0.1";
+
+memcached_st *
+conn_setup_memc(conn_t *conn)
+{
+	if (conn->memc == NULL) {
+		if ((conn->memc = memcached(memcached_opt, strlen(memcached_opt)))) {
+			memcached_behavior_set(conn->memc, MEMCACHED_BEHAVIOR_USE_UDP, 1);
+			memcached_behavior_set(conn->memc, MEMCACHED_BEHAVIOR_BINARY_PROTOCOL, 1);
+		}
+	}
+	return conn->memc;
+}
+
+void * 
+conn_query_memc_for_chain(conn_t *conn, const chain_t *chain, size_t *value_length)
+{
+	SOCKADDR *addr;
+	sl_t addrlen;
+
+	char *value;
+	uint32_t flags = 0;
+	memcached_return_t error;
+
+	if (chain == NULL)
+		return NULL;
+
+	if (conn_setup_memc(conn) == NULL)
+		return NULL;
+
+	ai_getSockaddr (&conn->dest, &addr, &addrlen);
+	value = memcached_get_by_key (conn->memc, "ip", 2, (char *)&addr, addrlen, value_length, &flags, &error);
+	free (addr);
+	if (value == NULL) {
+		value = malloc(sizeof(int));
+		*(int *)value = 1;
+	}
+
+	return value;
+}
+
+memcached_return_t
+conn_set_memc(conn_t *conn, const void *value, size_t val_length)
+{
+	SOCKADDR *addr;
+	sl_t addrlen;
+	time_t t = (time_t)(30 * 60);
+
+	if (conn_setup_memc(conn) == NULL)
+		return MEMCACHED_FAILURE;
+	
+	ai_getSockaddr (&conn->dest, &addr, &addrlen);
+	return memcached_set_by_key(conn->memc, "ip", 2, (char *)&addr, addrlen, (const char *)value, val_length, t, 0);
+}
+
+void
+conn_free_memc(conn_t *conn)
+{
+	if (conn->memc) {
+		memcached_free(conn->memc);
+		conn->memc = NULL;
+	}
+}
+
+#include <sys/select.h>
+#include <fcntl.h>
+
+int
+direct_connect_tosockaddr (SOCKADDR *sa, int len)
+{
+	int fd, retval;
+	int flags;
+	fd_set wfds;
+	struct timeval tv;
+
+	fd = socket (sa->sa_family, SOCK_STREAM, 0);
+
+	retval = fcntl (fd, F_GETFL);
+	retval |= O_NONBLOCK;
+	fcntl (fd, F_SETFL, retval);
+
+	FD_SET(fd, &wfds);
+
+	tv.tv_sec = 6;
+	tv.tv_usec = 0;
+
+	connect (fd, sa, len);
+	retval = select(fd + 1, NULL, &wfds, NULL, &tv);
+
+	close(fd);
+	return (retval == 1) ? 0 : -1;
+}
+
+#endif
 
 void *
 ChildThread (void *conn)

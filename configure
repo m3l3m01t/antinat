@@ -468,7 +468,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os MINGW32 CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S ECHO RANLIB ac_ct_RANLIB STRIP ac_ct_STRIP CPP EGREP LIBTOOL RUNTIMEPATH AN_VER WITH_IPV6 LOGDIR SLDFLAGS LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os MINGW32 CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S ECHO RANLIB ac_ct_RANLIB STRIP ac_ct_STRIP CPP EGREP LIBTOOL RUNTIMEPATH AN_VER WITH_IPV6 WITH_MEMCACHED LOGDIR SLDFLAGS LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -8346,6 +8346,18 @@ rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
 CFLAGS="$TEMPVAR"
 
 
+WITH_MEMCACHED=0
+# Check whether --with-memcached or --without-memcached was given.
+if test "${with_memcached+set}" = set; then
+  withval="$with_memcached"
+  echo "as_me:$LINENO: with_memcached=$withval"
+  if test "$withval" = "yes"; then
+    WITH_MEMCACHED=1
+    SLDFLAGS="$SLDFLAGS `pkg-config --libs libmemcached`"
+  fi
+else
+  echo "as_me:$LINENO: with_memcached: no"
+fi
 
 
 # Check whether --with-feedback or --without-feedback was given.
@@ -9169,6 +9181,7 @@ s,@LIBTOOL@,$LIBTOOL,;t t
 s,@RUNTIMEPATH@,$RUNTIMEPATH,;t t
 s,@AN_VER@,$AN_VER,;t t
 s,@WITH_IPV6@,$WITH_IPV6,;t t
+s,@WITH_MEMCACHED@,$WITH_MEMCACHED,;t t
 s,@LOGDIR@,$LOGDIR,;t t
 s,@SLDFLAGS@,$SLDFLAGS,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t

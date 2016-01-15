@@ -235,7 +235,7 @@ socks4_handler (conn_t * conn)
 	unsigned char tmp;
 	char temp[5];
 	unsigned long ulAddr;
-	chain_t *chain;
+	chain_t *chain = NULL;
 #ifdef WITH_DEBUG
 	char szDebug[300];
 #endif

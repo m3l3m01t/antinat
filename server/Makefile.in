@@ -18,7 +18,7 @@ EXEEXT=@EXEEXT@
 TARGET=antinat$(EXEEXT)
 SERV_OBJS=addrinfo.lo auth.lo config.lo conn.lo libds.lo loggers.lo main.lo socks4.lo socks5.lo
 LDFLAGS=@LDFLAGS@ -L../client `../client/antinat-config --libs` -lexpat
-SLDFLAGS=@SLDFLAGS@
+SLDFLAGS=@SLDFLAGS@ `pkg-config --libs libmemcached`
 
 CC=@CC@
 MINGW32=@MINGW32@

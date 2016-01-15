@@ -31,6 +31,9 @@
 #include <sys/time.h>
 #endif
 #endif
+#ifdef WITH_MEMCACHED
+#include <libmemcached/memcached.h>
+#endif
 
 typedef int BOOL;
 
@@ -253,6 +256,7 @@ typedef struct ac_nodes {
 } ac_nodes;
 
 typedef struct chain_t {
+	BOOL auto_mode;
 	char *name;
 	char *uri;
 	char *user;
@@ -361,6 +365,9 @@ typedef struct conn_t {
 	char *pass;
 
 	config_t *conf;
+#ifdef WITH_MEMCACHED
+	memcached_st *memc;
+#endif
 
 	addrinfo_t source;
 	addrinfo_t dest;
@@ -388,6 +395,15 @@ void conn_init_tcp (conn_t *, config_t *, SOCKET);
 
 /* This constructor associates with a UDP packet */
 void conn_init_udp (conn_t *, config_t *, SOCKADDR * sa, char *, int);
+
+#ifdef WITH_MEMCACHED
+#include <libmemcached/memcached.h>
+
+memcached_st *conn_setup_memc(conn_t *conn);
+void * conn_query_memc_for_chain(conn_t *conn, const chain_t *chain, size_t *value_length);
+memcached_return_t conn_set_memc(conn_t *conn, const void *value, size_t val_length);
+void conn_free_memc(conn_t *conn);
+#endif
 
 /* Functions to manipulate address structures*/
 void ai_init (addrinfo_t *, SOCKADDR *);

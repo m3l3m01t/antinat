@@ -487,6 +487,17 @@ config_ch_start (void *data, const char *name, const char **atts)
 	sprintf (szDebug, "Loading tag %s", name);
 	DEBUG_LOG (szDebug);
 #endif
+	if (strcmp (name, "auto") == 0) {
+		handled = TRUE;
+
+		for (i = 0; atts[i] && atts[i + 1]; i += 2) {
+			if (strcmp (atts[i], "value") == 0) {
+				handledatt = TRUE;
+				conf->chains->auto_mode = TRUE;
+			}
+		}
+	}
+
 	if (strcmp (name, "authscheme") == 0) {
 		handled = TRUE;
 
@@ -1253,11 +1264,9 @@ config_isallowed (config_t * conf, conn_t * conn, chain_t ** chain)
 #ifdef WITH_DEBUG
 	char szDebug[300];
 #endif
+	*chain = NULL;
 	conn->throttle = conf->throttle;
 	ret = config_isallowed_root (conf->filt, conn, chain);
-	if (ret != 3) {
-		*chain = NULL;
-	}
 #ifdef WITH_DEBUG
 	sprintf (szDebug, "Filter reports: %i (chain %p)", ret, (void *) *chain);
 	DEBUG_LOG (szDebug);
