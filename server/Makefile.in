@@ -11,14 +11,14 @@ localstatedir=@localstatedir@
 sysconfdir=@sysconfdir@
 INSTALL=@INSTALL@
 LIBTOOL=@LIBTOOL@
-CFLAGS=@CFLAGS@ `../client/antinat-config --cflags` -I../client
+CFLAGS=@CFLAGS@ `../client/antinat-config --cflags` -I../client `mysql_config --cflags`
 SHELL=@SHELL@
 top_builddir=@top_builddir@
 EXEEXT=@EXEEXT@
 TARGET=antinat$(EXEEXT)
 SERV_OBJS=addrinfo.lo auth.lo config.lo conn.lo libds.lo loggers.lo main.lo socks4.lo socks5.lo
 LDFLAGS=@LDFLAGS@ -L../client `../client/antinat-config --libs` -lexpat
-SLDFLAGS=@SLDFLAGS@ `pkg-config --libs libmemcached`
+SLDFLAGS=@SLDFLAGS@ `pkg-config --libs libmemcached` `mysql_config --libs`
 
 CC=@CC@
 MINGW32=@MINGW32@

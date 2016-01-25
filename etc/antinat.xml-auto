@@ -4,7 +4,7 @@
 	<interface value='0.0.0.0'/>
 
 	<!-- Port to listen on -->
-	<port value='1080'/>
+	<port value='1081'/>
 
 	<!-- Allow users to be authenticated against UNIX usernames -->
 	<allowlocalusers/>
@@ -18,13 +18,20 @@
 
 	<!-- What logs should we keep? -->
 	<log>
-		<addrdaylog value='/var/log/antinat/day_addr.log'/>
-		<userdaylog value='/var/log/antinat/day_user.log'/>
-	<!--	<connlog value='/var/log/antinat/connection.log'/> -->
+		<!--	
+		<addrdaylog value='/var/log/antinat/day_addr_auto.log'/>
+		<userdaylog value='/var/log/antinat/day_user_auto.log'/>
+		<connlog value='/var/log/antinat/connection-auto.log'/>
+		-->
 	</log>
 
-	<chain name='ireland'>
-		<uri value='socks5://52.31.164.222:7070'/>
+	<chain name='auto' query='true'>
+		<!--
+			<uri value='socks5://52.31.164.222:7072'/>
+			<uri value='socks5://sinobotvpn.cloudbot.com.cn:443'/>
+			<uri value='socks5://127.0.0.1:7072'/>
+		-->
+		<uri value='socks5://sinobotvpn.cloudbot.com.cn:443'/>
 		<authscheme value='chap'/>
 		<user value='pi'/>
 		<password value='antiGfw'/>
@@ -64,10 +71,10 @@
 				<accept/>
 			</filter>
 			<filter source_addr='172.16.0.0/12' authscheme='anonymous'>
-				<chain name='ireland'/>
+				<chain name='auto'/>
 			</filter>
-			<filter source_addr='10.0.0.0/8'>
-				<accept/>
+			<filter source_addr='127.0.0.1/32' authscheme='anonymous'>
+				<chain name='auto'/>
 			</filter>
 		</filter>
 		<reject/>

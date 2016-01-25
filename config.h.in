@@ -165,6 +165,9 @@
 /* Define if this build should support IPv6 */
 #undef WITH_IPV6
 
+/* Define if with mysql */
+#define WITH_MYSQL 1
+
 /* Define if with memcached */
 #define WITH_MEMCACHED 1
 

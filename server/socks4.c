@@ -194,6 +194,15 @@ socks4_cmd_conn (conn_t * conn, chain_t * chain)
 	SOCKADDR_IN sout;
 	sl_t soutlen;
 	ai_getSockaddr (&conn->dest, &addr, &addrlen);
+
+#ifdef WITH_MYSQL
+extern chain_t * conn_query_for_chain(conn_t *conn, chain_t *chain);
+
+	if (chain && chain->auto_mode) {
+		chain = conn_query_for_chain(conn, chain);
+	}
+#endif
+
 	remote = an_new_connection ();
 	conn_setupchain (conn, remote, chain);
 

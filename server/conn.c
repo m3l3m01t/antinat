@@ -34,6 +34,38 @@
 int writerPipe = -1;
 #endif
 
+#ifdef WITH_MYSQL
+#include <mysql.h>
+
+//const char *memcached_opt = "--SERVER=127.0.0.1:11211";
+const char *memcached_opt = "--SOCKET=/var/run/memcached/memcached.socket";
+
+void
+conn_init_mysql(conn_t *conn)
+{
+	my_bool reconnect = 1;
+	mysql_init(&conn->mysql);
+
+    mysql_options(&conn->mysql, MYSQL_OPT_RECONNECT, &reconnect);
+
+#ifdef WITH_MEMCACHED
+	if ((conn->memc = memcached(memcached_opt, strlen(memcached_opt)))) {
+		memcached_behavior_set(conn->memc, MEMCACHED_BEHAVIOR_BINARY_PROTOCOL, 1);
+	}
+#endif
+}
+
+void
+conn_close_mysql(conn_t *conn)
+{
+	mysql_close(&conn->mysql);
+#ifdef WITH_MEMCACHED
+	if (conn->memc)
+		conn_free_memc(conn);
+#endif
+}
+#endif /* WITH_MYSQL */
+
 void
 conn_init_tcp (conn_t * conn, config_t * theconf, SOCKET thiss)
 {
@@ -51,8 +83,8 @@ conn_init_tcp (conn_t * conn, config_t * theconf, SOCKET thiss)
 	conn->authscheme = 0;
 	conn->authsrc = 0;
 
-#ifdef WITH_MEMCACHED
-	conn->memc = NULL;
+#ifdef WITH_MYSQL
+	conn_init_mysql(conn);
 #endif
 
 	ai_init (&conn->source, NULL);
@@ -84,8 +116,8 @@ conn_init_udp (conn_t * conn, config_t * theconf, SOCKADDR * sa,
 	conn->authscheme = 0;
 	conn->authsrc = 0;
 
-#ifdef WITH_MEMCACHED
-	conn->memc = NULL;
+#ifdef WITH_MYSQL
+	conn_init_mysql(conn);
 #endif
 
 	ai_init (&conn->source, NULL);
@@ -115,6 +147,8 @@ conn_close (conn_t * conn)
 		free (conn->pass);
 
 	conn->user = conn->pass = NULL;
+
+	conn_close_mysql(conn);
 
 	free (conn);
 }
@@ -159,6 +193,7 @@ conn_setDestHostname (conn_t * conn, char *host)
 #endif
 		return FALSE;
 	}
+
 	conn->dest.address_type = phe->h_addrtype;
 	ai_setAddress_str (&conn->dest, phe->h_addr_list[0], phe->h_length);
 	return TRUE;
@@ -502,7 +537,7 @@ conn_forwarderThread (void *data)
 						current->local->nExternalSendBytes += len;
 						szBuffer[len] = '\0';
 						an_send (current->remote, szBuffer, len, 0);
-#ifdef WITH_DEBUG
+#if 0
 						sprintf (szDebug, "Send %i bytes local->remote", len);
 						DEBUG_LOG (szDebug);
 #endif
@@ -521,7 +556,7 @@ conn_forwarderThread (void *data)
 						current->local->nExternalRecvBytes += len;
 						szBuffer[len] = '\0';
 						send (current->local->s, szBuffer, len, 0);
-#ifdef WITH_DEBUG
+#if 0
 						sprintf (szDebug, "Send %i bytes remote->local", len);
 						DEBUG_LOG (szDebug);
 #endif
@@ -664,9 +699,13 @@ conn_setupchain (conn_t * conn, ANCONN remote, chain_t * chain)
 	return TRUE;
 }
 
+#ifdef WITH_MYSQL
+
 #ifdef WITH_MEMCACHED
 
-const char *memcached_opt = "--SERVER=127.0.0.1";
+
+#if 0
+const char *memcached_opt = "--SERVER=127.0.0.1:11211 --BINARY-PROTOCOL";
 
 memcached_st *
 conn_setup_memc(conn_t *conn)
@@ -679,46 +718,246 @@ conn_setup_memc(conn_t *conn)
 	}
 	return conn->memc;
 }
+#endif
 
-void * 
-conn_query_memc_for_chain(conn_t *conn, const chain_t *chain, size_t *value_length)
+#define MYSQL_USER "pi"
+#define MYSQL_PASS "raspberry"
+#define MYSQL_DB   "dns"
+
+#define TABLE_NAME_DOMAIN  "domain"
+#define TABLE_NAME_IP  "ip"
+
+#define TABLE_FIELD_IP "ip"
+#define TABLE_FIELD_DNAME "dname"
+#define TABLE_FIELD_POLICY "policy"
+#define TABLE_FIELD_LVL    "levels"
+
+static policy_type_t
+_mysql_query_policy_by_addr(MYSQL *mysql, const char *ipaddr)
 {
-	SOCKADDR *addr;
-	sl_t addrlen;
+    policy_type_t policy = POLICY_UNKNOWN;
 
-	char *value;
-	uint32_t flags = 0;
-	memcached_return_t error;
+	MYSQL_RES *results;
+	MYSQL_ROW record;
+	char sql_statement[512];
 
-	if (chain == NULL)
-		return NULL;
+#ifdef WITH_DEBUG
+	char szDebug[128];
+#endif
 
-	if (conn_setup_memc(conn) == NULL)
-		return NULL;
-
-	ai_getSockaddr (&conn->dest, &addr, &addrlen);
-	value = memcached_get_by_key (conn->memc, "ip", 2, (char *)&addr, addrlen, value_length, &flags, &error);
-	free (addr);
-	if (value == NULL) {
-		value = malloc(sizeof(int));
-		*(int *)value = 1;
+	if (mysql_real_connect(mysql, NULL, 
+				MYSQL_USER, MYSQL_PASS, MYSQL_DB, 0, NULL, 0) == NULL) {
+#ifdef WITH_DEBUG
+		sprintf (szDebug, "connect to mysql failed(%d):%s\n", mysql_error(mysql));
+		DEBUG_LOG (szDebug);
+#endif
+		return policy;
 	}
+
+	snprintf(sql_statement, sizeof(sql_statement) - 1,
+			"SELECT " TABLE_FIELD_DNAME "," TABLE_FIELD_POLICY " FROM " TABLE_NAME_IP " WHERE " TABLE_FIELD_IP "='%s'",
+			ipaddr);
+
+#ifdef WITH_DEBUG
+	sprintf (szDebug, "query ip policy: %s\n", sql_statement);
+	DEBUG_LOG (szDebug);
+#endif
+
+	if (mysql_query(mysql, sql_statement) != 0) {
+		/* query failed */
+#ifdef WITH_DEBUG
+		sprintf(szDebug, "query ip policy failed:%s\n", mysql_error(mysql));
+		DEBUG_LOG (szDebug);
+#endif
+		mysql_close(mysql);
+		return policy;
+	}
+
+	if (mysql_field_count(mysql) > 0) {
+		results = mysql_store_result(mysql);
+
+		record = mysql_fetch_row(results);
+
+		if (record) {
+			policy = strtoul(record[1], NULL, 10);
+#ifdef WITH_DEBUG
+			sprintf(szDebug, "%s, domain %s, policy %s\n",ipaddr, record[0], record[1]);
+			DEBUG_LOG (szDebug);
+		} else {
+			sprintf(szDebug, "policy not found for %s\n",ipaddr);
+			DEBUG_LOG (szDebug);
+#endif
+		}
+		mysql_free_result(results);
+	} else {
+#ifdef WITH_DEBUG
+		sprintf(szDebug, "policy for %s not found\n", ipaddr);
+		DEBUG_LOG (szDebug);
+#endif
+	}
+
+	mysql_close(mysql);
+	return policy;	
+}
+
+#if 0
+static policy_type_t
+_mysql_query_domain_policy(MYSQL *mysql, const char *domain)
+{
+    int lvl = 0;
+    policy_type_t policy = POLICY_DEFAULT;
+
+    const char *d;
+
+    /* domain must ends with '.' */
+    for (d = domain; *d; d++) {
+        if (*d == '.')
+            lvl ++;
+    }
+
+    d = domain;
+
+    while ((policy == POLICY_DEFAULT) && (lvl > 0)) {
+        MYSQL_RES *results;
+        MYSQL_ROW record;
+        char sql_statement[128];
+
+        snprintf(sql_statement, sizeof(sql_statement) - 1, "SELECT * FROM " TABLE_NAME_DOMAIN " where " TABLE_FIELD_LVL " = %u AND " TABLE_FIELD_DOMAIN " LIKE '%%%s'", lvl--, d);
+
+#ifdef WITH_DEBUG
+        fprintf(_priv_data.fp, "query domain policy: %s\n", sql_statement);
+#endif
+
+        if (mysql_query(mysql, sql_statement) != 0) {
+            /* query failed */
+#ifdef WITH_DEBUG
+            fprintf(_priv_data.fp, "query domain policy failed:%s\n",
+                   mysql_error(mysql));
+#endif
+            break;
+        }
+
+        while (*d++ != '.');
+
+        if (mysql_field_count(mysql) == 0) {
+            continue;
+        }
+
+        results = mysql_store_result(mysql);
+
+        while((record = mysql_fetch_row(results))) {
+#ifdef DEBUG
+            unsigned int levels;
+
+            levels = strtoul(record[1], NULL, 10);
+            policy = strtoul(record[2], NULL, 10);
+            fprintf(_priv_data.fp, "%s,levels ptr %p: %s-%d, policy ptr %p:%s-%d\n", record[0], record[1], record[1],levels,record[2], record[2],policy);
+#endif
+        }
+
+        mysql_free_result(results);
+    }
+
+    return policy;
+}
+#endif
+
+const char ip_policy_group[10] = "ip_policy";
+
+static char *
+memcached_get_policy_by_addr(memcached_st *memc, const char *ipaddr, size_t *value_len, uint32_t *flags)
+{
+	char *value;
+	memcached_return_t error = MEMCACHED_SUCCESS;
+
+	value = memcached_get_by_key(memc, ip_policy_group, sizeof(ip_policy_group), ipaddr, strlen(ipaddr), value_len, flags, &error);
+	//value = memcached_get(memc, ipaddr, strlen(ipaddr), value_len, flags, &error);
+#ifdef WITH_DEBUG
+	if (value == NULL || error != MEMCACHED_SUCCESS) {
+		char szDebug[300];
+
+		sprintf (szDebug, "get policy of %s failed:%s", ipaddr,
+				memcached_strerror(memc, error));
+		DEBUG_LOG (szDebug);
+	}
+#endif
 
 	return value;
 }
 
-memcached_return_t
-conn_set_memc(conn_t *conn, const void *value, size_t val_length)
+static void
+memcached_set_policy_by_addr(memcached_st *memc, const char *ipaddr, const void *value, size_t value_len, uint32_t flags)
 {
-	SOCKADDR *addr;
-	sl_t addrlen;
-	time_t t = (time_t)(30 * 60);
+	memcached_return_t retval;
+#ifdef WITH_DEBUG
+	char szDebug[300];
+#endif
 
-	if (conn_setup_memc(conn) == NULL)
-		return MEMCACHED_FAILURE;
-	
-	ai_getSockaddr (&conn->dest, &addr, &addrlen);
-	return memcached_set_by_key(conn->memc, "ip", 2, (char *)&addr, addrlen, (const char *)value, val_length, t, 0);
+#ifdef WITH_DEBUG
+	sprintf (szDebug, "update policy of %s to %d", ipaddr, *(int *)value);
+	DEBUG_LOG (szDebug);
+#endif
+	if ((retval = memcached_set_by_key(memc, ip_policy_group, sizeof(ip_policy_group),
+				ipaddr, strlen(ipaddr), value, value_len, 300, flags)) != MEMCACHED_SUCCESS) {
+#ifdef WITH_DEBUG
+		sprintf (szDebug, "update policy of %s failed:%s", ipaddr,
+				memcached_strerror(memc, retval));
+		DEBUG_LOG (szDebug);
+#endif
+	};
+}
+
+chain_t * 
+conn_query_for_chain(conn_t *conn, chain_t *chain)
+{
+	char *value;
+	uint32_t flags = 0;
+	const char *ipaddr = ai_getAddressString(&conn->dest);
+#ifdef WITH_DEBUG
+	char szDebug[300];
+#endif
+
+	policy_type_t policy = POLICY_UNKNOWN;
+
+#ifdef WITH_MEMCACHED
+	if (conn->memc) {
+		size_t value_len = 0;
+		uint32_t flags = 0;
+
+		char *value = memcached_get_policy_by_addr(conn->memc, ipaddr, &value_len, &flags);
+		if (value && value_len == sizeof(policy)) {
+			memcpy(&policy, value, value_len);
+		} else{
+#ifdef WITH_DEBUG
+			sprintf (szDebug, "get policy returns %p value_len: %d", value, value_len);
+			DEBUG_LOG (szDebug);
+#endif
+		}
+#ifdef WITH_DEBUG
+		sprintf (szDebug, "ip policy of %s from memcached: %d",ipaddr, policy);
+		DEBUG_LOG (szDebug);
+#endif
+	}
+#endif
+
+	if (policy == POLICY_UNKNOWN) {
+		policy = _mysql_query_policy_by_addr(&conn->mysql, ipaddr);
+#ifdef WITH_MEMCACHED
+		if (conn->memc) {
+			if (policy == POLICY_UNKNOWN)
+				policy = POLICY_DEFAULT;
+			memcached_set_policy_by_addr(conn->memc, ipaddr, &policy, sizeof(policy), 0);
+		}
+#endif
+	}
+
+	if (policy == POLICY_PROXY) {
+		chain->policy = policy;
+	} else {
+		chain = NULL;
+	}
+
+	return chain;
 }
 
 void
@@ -761,6 +1000,8 @@ direct_connect_tosockaddr (SOCKADDR *sa, int len)
 
 #endif
 
+#endif
+
 void *
 ChildThread (void *conn)
 {
@@ -780,6 +1021,11 @@ ChildThread (void *conn)
 	sprintf (szDebug, "Version: %x", ver);
 	DEBUG_LOG (szDebug);
 #endif
+
+#ifdef WITH_MYSQL
+
+#endif
+
 	connection->version = ver;
 	switch (ver) {
 	case 4:
@@ -801,3 +1047,5 @@ ChildThread (void *conn)
 	}
 	return NULL;
 }
+
+/* vim: set ts=4 sw=4 noet: */

@@ -31,8 +31,11 @@
 #include <sys/time.h>
 #endif
 #endif
+#ifdef WITH_MYSQL
+#include <mysql.h>
 #ifdef WITH_MEMCACHED
 #include <libmemcached/memcached.h>
+#endif
 #endif
 
 typedef int BOOL;
@@ -255,14 +258,22 @@ typedef struct ac_nodes {
 	} alt;
 } ac_nodes;
 
+#ifdef WITH_MYSQL
+typedef enum {POLICY_UNKNOWN, POLICY_DEFAULT, POLICY_DIRECT, POLICY_PROXY, POLICY_BLOCK} policy_type_t;
+#endif
+
 typedef struct chain_t {
-	BOOL auto_mode;
 	char *name;
 	char *uri;
 	char *user;
 	char *pass;
 	unsigned int authschemes;
 	struct chain_t *next;
+#ifdef WITH_MYSQL
+	BOOL auto_mode;
+
+	policy_type_t policy;
+#endif
 } chain_t;
 
 typedef struct fil_nodes {
@@ -365,8 +376,12 @@ typedef struct conn_t {
 	char *pass;
 
 	config_t *conf;
+#ifdef WITH_MYSQL
+	MYSQL mysql;
+
 #ifdef WITH_MEMCACHED
 	memcached_st *memc;
+#endif
 #endif
 
 	addrinfo_t source;
@@ -469,8 +484,8 @@ void os_mutex_close (os_mutex_t * lock);
 void os_mutex_lock (os_mutex_t * lock);
 void os_mutex_unlock (os_mutex_t * lock);
 int os_pipe (int *ends);
-void os_debug_log (const char *filename, const char *msg);
+void os_debug_log (const char *filename, int line, const char *msg);
 
 #ifdef WITH_DEBUG
-#define DEBUG_LOG(x) os_debug_log(__FILE__,x);
+#define DEBUG_LOG(x) os_debug_log(__FILE__, __LINE__, x) 
 #endif

@@ -22,6 +22,15 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+
+#ifdef HAVE_STRING_H
+#include <string.h>
+#endif
+
+#ifdef HAVE_ERRNO_H
+#include <errno.h>
+#endif
+
 #ifdef _WIN32_
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -39,6 +48,9 @@ config_t *conf = NULL;
 //char *config_filename = sysconfdir "/antinat.xml";
 char *config_filename = NULL;
 const char *pid_filename = "/var/run/antinat.pid";
+
+const char *log_filename = "/dev/null";
+
 #ifndef _WIN32_
 BOOL runAsDaemon = TRUE;
 #endif
@@ -158,7 +170,13 @@ daemonize ()
 		}
 		exit (EXIT_SUCCESS);
 	}
-	fh = open ("/dev/null", O_RDWR, 0666);
+
+	fh = open (log_filename, O_CREAT|O_TRUNC|O_RDWR, 0666);
+	if (fh == -1) {
+		fprintf(stderr, "failed to open logfile %s:%s\n", log_filename, strerror(errno));
+		fh = open ("/dev/null", O_RDWR);
+	}
+
 	close (1);
 	close (2);
 	dup2 (fh, 1);
@@ -259,6 +277,9 @@ closeup (int x)
 int
 realapp ()
 {
+#ifdef WITH_MYSQL
+	mysql_library_init(0, NULL, NULL);
+#endif
 	os_mutex_init (&crypt_lock);
 	os_mutex_init (&getpwnam_lock);
 	os_mutex_init (&getspnam_lock);
@@ -285,6 +306,10 @@ realapp ()
 #endif
 		}
 	}
+
+#ifdef WITH_MYSQL
+	mysql_library_end();
+#endif
 	return EXIT_SUCCESS;
 }
 
@@ -294,10 +319,11 @@ displayHelp ()
 	char szBuffer[2048];
 	sprintf (szBuffer,
 			 "Antinat version %s\n\n"
-			 "Usage: antinat [-h] [-i|-r|-a] [-cConfigFile] [-x]\n"
+			 "Usage: antinat [-h] [-i|-r|-a] [-l logfile] [-cConfigFile] [-x]\n"
 			 "-h - This help screen\n"
 			 "-c - Specify the location of the configuration file\n"
 			 "-p - Specify the location of the pid file\n"
+			 "-l - Specify the location of the log file\n"
 			 "WIN32 ONLY:\n"
 			 "-a - Run as application (rather than service)\n"
 			 "-i - Install as service\n"
@@ -363,7 +389,7 @@ process_args (DSParams * param)
 void	getopt_process_args(int argc, char *argv[])
 {
 	int opt;
-	while ((opt = getopt(argc, argv, "xc:p:")) != -1) {
+	while ((opt = getopt(argc, argv, "xc:p:l:")) != -1) {
 		switch(opt) {
 			case 'x':
 				runAsDaemon = FALSE;
@@ -377,6 +403,9 @@ void	getopt_process_args(int argc, char *argv[])
 			case 'h':
 				displayHelp ();
 				exit (EXIT_SUCCESS);
+				break;
+			case 'l':
+				log_filename = strdup(optarg);
 				break;
 			default:
 				displayHelp ();
@@ -396,6 +425,7 @@ main (int argc, char *argv[])
 	getopt_process_args(argc, argv);
 
 	return realapp ();
+
 }
 
 #else

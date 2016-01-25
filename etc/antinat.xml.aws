@@ -4,29 +4,50 @@
 	<interface value='0.0.0.0'/>
 
 	<!-- Port to listen on -->
-	<port value='7070'/>
+	<port value='1081'/>
 
 	<!-- Allow users to be authenticated against UNIX usernames -->
-	<!-- <allowlocalusers/> -->
+	<allowlocalusers/>
 
 	<!-- Time in seconds to listen for outside incoming connections when
 	     applications request a BIND operation before timeout -->
 	<maxbindwait value='60'/>
 
 	<!-- demonstration user account -->
-	<!-- <user user='testuser' password='testpass'/> -->
-	<user user='pi' password='antiGfw'/>
+	<user user='pi' password='xxxx'/>
 
 	<!-- What logs should we keep? -->
 	<log>
-		<addrdaylog value='/var/log/antinat/day_addr.log'/>
-		<userdaylog value='/var/log/antinat/day_user.log'/>
-		<connlog value='/var/log/antinat/connection.log'/>
+		<!--	
+		<addrdaylog value='/var/log/antinat/day_addr_auto.log'/>
+		<userdaylog value='/var/log/antinat/day_user_auto.log'/>
+		<connlog value='/var/log/antinat/connection-auto.log'/>
+		-->
 	</log>
+
+	<chain name='auto' query='true'>
+		<uri value='socks5://127.0.0.1:7072'/>
+		<authscheme value='chap'/>
+		<user value='pi'/>
+		<password value='antiGfw'/>
+	</chain>
 
 	<!-- What security methods do we offer clients? -->
 	<authchoice source_addrtype='ipv4'>
+		<authchoice source_addr='127.0.0.1/32'>
+			<select mechanism='anonymous'/>
+		</authchoice>
+		<authchoice source_addr='192.168.0.0/16'>
+			<select mechanism='anonymous'/>
+		</authchoice>
+		<authchoice source_addr='172.16.0.0/12'>
+			<select mechanism='anonymous'/>
+		</authchoice>
+		<authchoice source_addr='10.0.0.0/8'>
+			<select mechanism='anonymous'/>
+		</authchoice>
 		<select mechanism='chap'/>
+		<select mechanism='cleartext'/>
 	</authchoice>
 
 	<!-- Which connections should we accept or reject? -->
@@ -36,19 +57,21 @@
 				<reject/>
 			</filter>
 			<filter source_addr='127.0.0.1/32'>
-				<reject/>
+				<accept/>
 			</filter>
 			<filter dest_addr='127.0.0.1/32'>
 				<reject/>
 			</filter>
 			<filter source_addr='192.168.0.0/16'>
-				<reject/>
+				<accept/>
 			</filter>
-			<filter source_addr='10.0.0.0/8'>
-				<reject/>
+			<filter source_addr='172.16.0.0/12' authscheme='anonymous'>
+				<chain name='auto'/>
+			</filter>
+			<filter source_addr='127.0.0.1/32' authscheme='anonymous'>
+				<chain name='auto'/>
 			</filter>
 		</filter>
-		<accept/>
+		<reject/>
 	</filter>
-
 </antinatconfig>

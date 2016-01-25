@@ -261,7 +261,7 @@ socks5_forwardUDPData (conn_t * tcpconn, SOCKET one, SOCKET two)
 	localaddr = NULL;
 	localsize = 0;
 	while (!finished) {
-	  barfedinbound:
+barfedinbound:
 		FD_ZERO (&fds);
 		FD_SET (tcpsock, &fds);
 		FD_SET (one, &fds);
@@ -670,11 +670,11 @@ socks5_cmd_conn (conn_t * conn, chain_t * chain)
 	SOCKADDR *addr;
 	sl_t addrlen;
 	sl_t soutlen;
+
 #ifdef WITH_DEBUG
 	char szDebug[100];
 #endif
 	int *pval;
-	size_t val_length;
 
 	if (!ai_getSockaddr (&conn->dest, &addr, &addrlen))
 		return FALSE;
@@ -682,29 +682,15 @@ socks5_cmd_conn (conn_t * conn, chain_t * chain)
 	sprintf (szDebug, "Socket family: %x", addr->sa_family);
 	DEBUG_LOG (szDebug);
 #endif
-#ifdef WITH_MEMCACHED
-	pval = conn_query_memc_for_chain(conn, chain, &val_length);
-	if (pval && *pval) {
-		if (direct_connect_tosockaddr (addr, addrlen) == 0) {
-			/* TODO: mark direct connect success */
 
-			if (*pval == 1) {
-				*pval = 2;
-				conn_set_memc(conn, pval, sizeof(int));
-			}
-			free (pval);
-			chain = NULL;
-		} else {
-			/* TODO: mark direct connect failed */
-			*pval = 0;
-			conn_set_memc(conn, pval, sizeof(int));
-#ifdef WITH_DEBUG
-			DEBUG_LOG ("Direct connection failed");
-#endif
-			free (pval);
-		}
+#ifdef WITH_MYSQL
+extern chain_t * conn_query_for_chain(conn_t *conn, chain_t *chain);
+
+	if (chain && chain->auto_mode) {
+		chain = conn_query_for_chain(conn, chain);
 	}
 #endif
+
 	remote = an_new_connection ();
 
 	conn_setupchain (conn, remote, chain);
@@ -835,7 +821,6 @@ socks5_request (conn_t * conn)
 	switch (cmd) {
 	case 0x01:					/* Connect */
 		ret = socks5_cmd_conn (conn, chain);
-		conn_free_memc(conn);
 		break;
 	case 0x02:					/* Bind */
 		ret = socks5_cmd_bind (conn, chain);

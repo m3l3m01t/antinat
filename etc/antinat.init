@@ -3,10 +3,10 @@
 
 ### BEGIN INIT INFO
 # Provides:          antinat
-# Required-Start:    $remote_fs
-# Required-Stop:     $remote_fs
-# Should-Start:		 $local_fs $network
-# Should-Stop:		 $local_fs $network
+# Required-Start:    $remote_fs mysql
+# Required-Stop:     $remote_fs mysql
+# Should-Start:		 $local_fs $network memcached
+# Should-Stop:		 $local_fs $network memcached
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: Antinat Socks Proxy Server
@@ -22,14 +22,21 @@ elif [ -f /etc/init.d/functions ]; then
     OS_VARIANT=REDHAT
 fi
 
+DAEMON=/usr/bin/antinat 
+
+[ -e $DAEMON ] || exit 1;
+
 PID_FILE="/var/run/antinat.pid"
+ANTINAT_OPT="-l /var/log/antinat/antinat.log"
+
+[ "$1" = "status" ] || install -d -o proxy -g proxy -m 0755 /var/log/antinat
 
 # See how we were called.
 case "$1" in
     start)
     # Start daemon.
         echo -n "Starting antinat... "
-        /usr/bin/antinat -p $PID_FILE
+        start-stop-daemon --start -b -o --pidfile $PID_FILE -m -c proxy -g memcache -x $DAEMON -- -x -c /etc/antinat.xml $ANTINAT_OPT
 
         touch /var/lock/subsys/antinat
         echo "done"
@@ -37,12 +44,7 @@ case "$1" in
     stop)
         # Stop daemon.
         echo "Shutting down antinat... "
-        if [ $OS_VARIANT = "DEBIAN" ]; then
-            pkill -F $PID_FILE antinat
-        else
-            killall antinat
-            rm -f $PID_FILE
-        fi
+        start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --pidfile $PID_FILE --remove-pidfile --exec $DAEMON
 
         rm -f /var/lock/subsys/antinat
 
@@ -51,11 +53,7 @@ case "$1" in
   reload)
         # Reload configuration
         echo -n "Reloading antinat... "
-        if [ $OS_VARIANT = "DEBIAN" ]; then
-            pkill -F $PID_FILE -HUP antinat
-        else
-            killproc antinat -1
-        fi
+        pkill -F $PID_FILE -HUP antinat
         echo "done reload"
         ;;
   restart)
@@ -67,7 +65,7 @@ case "$1" in
   status)
         # Status daemon
         if [ -f $PID_FILE ]; then
-            kill -HUP `cat $PID_FILE`
+            pkill -F $PID_FILE -0 antinat
             if [ "$?" = "0" ]; then
                 exit 0;
             else

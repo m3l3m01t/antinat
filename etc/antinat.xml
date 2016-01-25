@@ -14,21 +14,14 @@
 	<maxbindwait value='60'/>
 
 	<!-- demonstration user account -->
-	<user user='pi' password='antiGfw'/>
+	<!-- <user user='testuser' password='testpass'/> -->
 
 	<!-- What logs should we keep? -->
 	<log>
-		<addrdaylog value='/var/log/antinat/day_addr.log'/>
-		<userdaylog value='/var/log/antinat/day_user.log'/>
-	<!--	<connlog value='/var/log/antinat/connection.log'/> -->
+		<addrdaylog value='/usr/var/log/antinat-0.90/day_addr.log'/>
+		<userdaylog value='/usr/var/log/antinat-0.90/day_user.log'/>
+		<connlog value='/usr/var/log/antinat-0.90/connection.log'/>
 	</log>
-
-	<chain name='ireland'>
-		<uri value='socks5://52.31.164.222:7070'/>
-		<authscheme value='chap'/>
-		<user value='pi'/>
-		<password value='antiGfw'/>
-	</chain>
 
 	<!-- What security methods do we offer clients? -->
 	<authchoice source_addrtype='ipv4'>
@@ -63,8 +56,8 @@
 			<filter source_addr='192.168.0.0/16'>
 				<accept/>
 			</filter>
-			<filter source_addr='172.16.0.0/12' authscheme='anonymous'>
-				<chain name='ireland'/>
+			<filter source_addr='172.16.0.0/12'>
+				<accept/>
 			</filter>
 			<filter source_addr='10.0.0.0/8'>
 				<accept/>
@@ -72,4 +65,5 @@
 		</filter>
 		<reject/>
 	</filter>
+
 </antinatconfig>

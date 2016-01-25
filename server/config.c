@@ -86,6 +86,9 @@ config_init_chain (chain_t * chain)
 	chain->pass = NULL;
 	chain->authschemes = 0;
 	chain->next = NULL;
+#ifdef WITH_MYSQL
+	chain->auto_mode = FALSE;
+#endif
 }
 
 static void
@@ -487,6 +490,7 @@ config_ch_start (void *data, const char *name, const char **atts)
 	sprintf (szDebug, "Loading tag %s", name);
 	DEBUG_LOG (szDebug);
 #endif
+#ifdef WITH_MYSQL
 	if (strcmp (name, "auto") == 0) {
 		handled = TRUE;
 
@@ -497,6 +501,7 @@ config_ch_start (void *data, const char *name, const char **atts)
 			}
 		}
 	}
+#endif
 
 	if (strcmp (name, "authscheme") == 0) {
 		handled = TRUE;
@@ -959,8 +964,13 @@ config_xml_start (void *data, const char *name, const char **atts)
 				handledatt = TRUE;
 				newchain->name = malloc (strlen (atts[i + 1]) + 1);
 				strcpy (newchain->name, atts[i + 1]);
+			} else if (strcmp(atts[i], "query") == 0) {
+				if (strcmp(atts[i + 1], "true") == 0) {
+					newchain->auto_mode = TRUE;
+				}
 			}
 		}
+
 		if (!handledatt) {
 			config_parseerror ("Attempt to declare a chain without a name");
 			return;
@@ -1270,6 +1280,12 @@ config_isallowed (config_t * conf, conn_t * conn, chain_t ** chain)
 #ifdef WITH_DEBUG
 	sprintf (szDebug, "Filter reports: %i (chain %p)", ret, (void *) *chain);
 	DEBUG_LOG (szDebug);
+	if (ret == 2) {
+		sprintf (szDebug, "Rejected, src %s, dst %s",
+				ai_getAddressString(&conn->source),
+				ai_getAddressString(&conn->dest));
+		DEBUG_LOG (szDebug);
+	}
 #endif
 	if (ret == 1 || ret == 3)
 		return TRUE;

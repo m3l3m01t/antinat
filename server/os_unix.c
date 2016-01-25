@@ -75,8 +75,8 @@ os_pipe (int *ends)
 
 #ifdef WITH_DEBUG
 void
-os_debug_log (const char *filename, const char *msg)
+os_debug_log (const char *filename, int line, const char *msg)
 {
-	fprintf (stderr, "%s: %s\n", filename, msg);
+	fprintf (stderr, "%s - %d: %s\n", filename, line, msg);
 }
 #endif

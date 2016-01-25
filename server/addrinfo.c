@@ -151,8 +151,10 @@ ai_init (addrinfo_t * ai, SOCKADDR * sa)
 void
 ai_close (addrinfo_t * ai)
 {
-	if (ai->address)
+	if (ai->address) {
 		free (ai->address);
+		ai->address = NULL;
+	}
 }
 
 char *
