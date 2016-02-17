@@ -37,8 +37,8 @@ int writerPipe = -1;
 #ifdef WITH_MYSQL
 #include <mysql.h>
 
-//const char *memcached_opt = "--SERVER=127.0.0.1:11211";
-const char *memcached_opt = "--SOCKET=/var/run/memcached/memcached.socket";
+const char *memcached_opt = "--SERVER=127.0.0.1:11211";
+//const char *memcached_opt = "--SOCKET=/var/run/memcached/memcached.socket";
 
 void
 conn_init_mysql(conn_t *conn)

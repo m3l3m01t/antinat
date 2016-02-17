@@ -3,10 +3,10 @@
 
 ### BEGIN INIT INFO
 # Provides:          antinat
-# Required-Start:    $remote_fs mysql
-# Required-Stop:     $remote_fs mysql
-# Should-Start:		 $local_fs $network memcached
-# Should-Stop:		 $local_fs $network memcached
+# Required-Start:    $local_fs  $network mysql memcached
+# Required-Stop:     $local_fs  $network mysql memcached
+# Should-Start:
+# Should-Stop:
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: Antinat Socks Proxy Server

@@ -49,7 +49,7 @@ config_t *conf = NULL;
 char *config_filename = NULL;
 const char *pid_filename = "/var/run/antinat.pid";
 
-const char *log_filename = "/dev/null";
+const char *log_filename = NULL;
 
 #ifndef _WIN32_
 BOOL runAsDaemon = TRUE;
@@ -156,7 +156,7 @@ HandleRequest ()
 void
 daemonize ()
 {
-	int fh;
+	int fh = -1;
 	pid_t pid;
 	if ((pid = fork ()) != 0) {
 		if (pid != -1) {
@@ -171,11 +171,15 @@ daemonize ()
 		exit (EXIT_SUCCESS);
 	}
 
-	fh = open (log_filename, O_CREAT|O_TRUNC|O_RDWR, 0666);
-	if (fh == -1) {
-		fprintf(stderr, "failed to open logfile %s:%s\n", log_filename, strerror(errno));
-		fh = open ("/dev/null", O_RDWR);
+	if (log_filename) {
+		fh = open (log_filename, O_CREAT|O_TRUNC|O_RDWR, 0666);
+		if (fh == -1) {
+			fprintf(stderr, "failed to open logfile %s:%s\n", log_filename, strerror(errno));
+		}
 	}
+
+	if (fh == -1)
+		fh = open ("/dev/null", O_RDWR);
 
 	close (1);
 	close (2);
@@ -297,6 +301,18 @@ realapp ()
 #ifndef _WIN32_
 	if (runAsDaemon)
 		daemonize ();
+	else if (log_filename) {
+		int fh = open (log_filename, O_CREAT|O_TRUNC|O_RDWR, 0666);
+		if (fh == -1) {
+			fprintf(stderr, "failed to open logfile %s:%s\n", log_filename, strerror(errno));
+			fh = open ("/dev/null", O_RDWR);
+		}
+
+		close (1);
+		close (2);
+		dup2 (fh, 1);
+		dup2 (fh, 2);
+	}
 #endif
 	log_log (NULL, LOG_EVT_SERVERSTART, 0, conf);
 	while (TRUE) {
