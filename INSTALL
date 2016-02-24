@@ -1,0 +1,1 @@
+./configure --prefix=/usr/local --sysconfdir=/etc --localstatedir=/var --with-memcached --with-mysql

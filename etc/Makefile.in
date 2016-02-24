@@ -6,10 +6,15 @@ localstatedir=@localstatedir@
 LOGDIR=@LOGDIR@
 INSTALL=@INSTALL@
 
-all: antinat.xml
+all: antinat.xml antinat.init
 
+.PHONY: antinat.xml
 antinat.xml: antinat.xml.in
 	sed -e 's!#LOGDIR#!$(LOGDIR)!g' antinat.xml.in>antinat.xml
+
+.PHONY: antinat.init
+antinat.init: antinat.init.in
+	sed -e 's!#DAEMON#!$(exec_prefix)/bin/antinat!g;s!#LOGDIR#!$(LOGDIR)!g' antinat.init.in>antinat.init
 
 clean:
 	rm -f antinat.xml
@@ -19,6 +24,6 @@ distclean: clean
 
 install: all
 	$(INSTALL) -d "$(sysconfdir)"
-	$(INSTALL) -d "$(LOGDIR)"
-	$(INSTALL) -m 0644 antinat.xml "$(sysconfdir)"
+	$(INSTALL) -g proxy -m 0775 -d "$(LOGDIR)"
+	$(INSTALL) -g proxy -m 0640 antinat.xml "$(sysconfdir)"
 	$(INSTALL) -m 0755 antinat.init /etc/init.d/antinat

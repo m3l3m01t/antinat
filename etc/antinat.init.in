@@ -22,21 +22,20 @@ elif [ -f /etc/init.d/functions ]; then
     OS_VARIANT=REDHAT
 fi
 
-DAEMON=/usr/bin/antinat 
+DAEMON=#DAEMON#
+LOGDIR=#LOGDIR#
 
 [ -e $DAEMON ] || exit 1;
 
 PID_FILE="/var/run/antinat.pid"
-ANTINAT_OPT="-l /var/log/antinat/antinat.log"
-
-[ "$1" = "status" ] || install -d -o proxy -g proxy -m 0755 /var/log/antinat
+ANTINAT_OPT="-l $LOGDIR/antinat.log"
 
 # See how we were called.
 case "$1" in
     start)
     # Start daemon.
         echo -n "Starting antinat... "
-        start-stop-daemon --start -b -o --pidfile $PID_FILE -m -c proxy -g memcache -x $DAEMON -- -x -c /etc/antinat.xml $ANTINAT_OPT
+        start-stop-daemon --start -b -o --pidfile $PID_FILE -m -c proxy -g proxy -x $DAEMON -- -x -c /etc/antinat.xml $ANTINAT_OPT
 
         touch /var/lock/subsys/antinat
         echo "done"

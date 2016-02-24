@@ -4,7 +4,7 @@
 	<interface value='0.0.0.0'/>
 
 	<!-- Port to listen on -->
-	<port value='1080'/>
+	<port value='1081'/>
 
 	<!-- Allow users to be authenticated against UNIX usernames -->
 	<allowlocalusers/>
@@ -14,14 +14,28 @@
 	<maxbindwait value='60'/>
 
 	<!-- demonstration user account -->
-	<!-- <user user='testuser' password='testpass'/> -->
+	<user user='pi' password='antiGfw'/>
 
 	<!-- What logs should we keep? -->
 	<log>
-		<addrdaylog value='/usr/var/log/antinat-0.90/day_addr.log'/>
-		<userdaylog value='/usr/var/log/antinat-0.90/day_user.log'/>
-		<connlog value='/usr/var/log/antinat-0.90/connection.log'/>
+		<!--	
+		<addrdaylog value='/var/log/antinat-0.90/day_addr_auto.log'/>
+		<userdaylog value='/var/log/antinat-0.90/day_user_auto.log'/>
+		<connlog value='/var/log/antinat-0.90/connection-auto.log'/>
+		-->
 	</log>
+
+	<chain name='auto' query='true'>
+		<!--
+			<uri value='socks5://52.31.164.222:7072'/>
+			<uri value='socks5://awsvpn.cloudbot.com.cn:443'/>
+			<uri value='socks5://127.0.0.1:7072'/>
+		-->
+		<uri value='socks5://127.0.0.1:7072'/>
+		<authscheme value='chap'/>
+		<user value='pi'/>
+		<password value='antiGfw'/>
+	</chain>
 
 	<!-- What security methods do we offer clients? -->
 	<authchoice source_addrtype='ipv4'>
@@ -53,17 +67,16 @@
 			<filter dest_addr='127.0.0.1/32'>
 				<reject/>
 			</filter>
-			<filter source_addr='192.168.0.0/16'>
-				<accept/>
+			<filter source_addr='192.168.0.0/16' authscheme='anonymous'>
+				<chain name='auto'/>
 			</filter>
-			<filter source_addr='172.16.0.0/12'>
-				<accept/>
+			<filter source_addr='172.16.0.0/12' authscheme='anonymous'>
+				<chain name='auto'/>
 			</filter>
-			<filter source_addr='10.0.0.0/8'>
-				<accept/>
+			<filter source_addr='127.0.0.1/32' authscheme='anonymous'>
+				<chain name='auto'/>
 			</filter>
 		</filter>
 		<reject/>
 	</filter>
-
 </antinatconfig>
