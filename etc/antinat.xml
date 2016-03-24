@@ -18,22 +18,18 @@
 
 	<!-- What logs should we keep? -->
 	<log>
-		<!--	
 		<addrdaylog value='/var/log/antinat-0.90/day_addr_auto.log'/>
 		<userdaylog value='/var/log/antinat-0.90/day_user_auto.log'/>
 		<connlog value='/var/log/antinat-0.90/connection-auto.log'/>
-		-->
 	</log>
 
 	<chain name='auto' query='true'>
 		<!--
-			<uri value='socks5://52.31.164.222:7072'/>
-			<uri value='socks5://awsvpn.cloudbot.com.cn:443'/>
 			<uri value='socks5://127.0.0.1:7072'/>
 		-->
 		<uri value='socks5://127.0.0.1:7072'/>
 		<authscheme value='chap'/>
-		<user value='pi'/>
+		<user value=''/>
 		<password value='antiGfw'/>
 	</chain>
 
